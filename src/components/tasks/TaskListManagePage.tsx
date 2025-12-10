@@ -260,11 +260,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask, actioningId }: Ta
           type="button"
           className="btn-row btn-row-primary"
           onClick={() =>
-            onSelectTask?.(
-              task.id,
-              task.status,
-              listType === 'published' ? 'manage-published' : 'manage-claimed',
-            )
+            onSelectTask?.(task.id, task.status, listType === 'published' ? 'published' : 'claimed')
           }
           disabled={actioningId === task.id}
         >

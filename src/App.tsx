@@ -15,14 +15,16 @@ import TaskListManagePage from './components/tasks/TaskListManagePage';
 
 type AppView = 'list' | 'create' | 'detail' | 'settlement' | 'manage';
 type ManageStatus = TaskStatus;
-export type DetailSource = 'discover' | 'manage-published' | 'manage-claimed';
+export type DetailSource = 'plaza' | 'published' | 'claimed';
 const CURRENT_USER_UID = 'mock-user-1';
+type ReturnTo = 'list' | 'manage';
 
 function App() {
   const [view, setView] = useState<AppView>('list');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('discover');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [detailSource, setDetailSource] = useState<DetailSource>('discover');
+  const [detailSource, setDetailSource] = useState<DetailSource>('plaza');
+  const [returnTo, setReturnTo] = useState<ReturnTo>('list');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -65,19 +67,29 @@ function App() {
     };
   }, [searchText, sortBy]);
 
-  const handleSelectTask = (task: Task, nextView: AppView = 'detail') => {
-    setDetailSource('discover');
+  const handleSelectTask = (
+    task: Task,
+    nextView: AppView = 'detail',
+    source: DetailSource = 'plaza',
+  ) => {
+    setDetailSource(source);
+    setReturnTo(source === 'plaza' ? 'list' : 'manage');
     setSelectedTask(task);
     setView(nextView);
   };
 
   const handleBackToList = () => {
     setSelectedTask(null);
-    setDetailSource('discover');
+    setDetailSource('plaza');
+    setReturnTo('list');
     setView('list');
   };
 
-  const handleSelectTaskFromManage = async (taskId: string, status: ManageStatus, source: DetailSource) => {
+  const handleSelectTaskFromManage = async (
+    taskId: string,
+    status: ManageStatus,
+    source: DetailSource,
+  ) => {
     try {
       let target = tasks.find((t) => t.id === taskId) ?? null;
       if (!target) {
@@ -86,19 +98,20 @@ function App() {
       if (!target) return;
       const destination: AppView = status === 'completed' ? 'settlement' : 'detail';
       setDetailSource(source);
-      handleSelectTask(target, destination);
+      setReturnTo('manage');
+      handleSelectTask(target, destination, source);
     } catch (error) {
       console.error('Failed to load task for manage detail', error);
     }
   };
 
   useEffect(() => {
-    if (view === 'manage' || detailSource.startsWith('manage')) {
+    if (view === 'manage' || returnTo === 'manage' || detailSource !== 'plaza') {
       setActiveRoute('tasks');
     } else {
       setActiveRoute('discover');
     }
-  }, [view, detailSource]);
+  }, [view, detailSource, returnTo]);
 
   const handleSidebarNavigate = (route: SidebarRoute) => {
     if (route === 'discover') {
@@ -161,15 +174,20 @@ function App() {
   }
 
   if (view === 'detail' && selectedTask) {
-    const backToManage = () => setView('manage');
-    const backTo = detailSource.startsWith('manage') ? backToManage : handleBackToList;
-    if (detailSource === 'discover') {
+    const backToManage = () => {
+      setSelectedTask(null);
+      setReturnTo('manage');
+      setView('manage');
+    };
+    const backTo =
+      detailSource !== 'plaza' || returnTo === 'manage' ? backToManage : handleBackToList;
+    if (detailSource === 'plaza') {
       return renderShell(
         <PlazaDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
         { mainClassName: 'task-detail-page', mainLabel: 'Task detail view' },
       );
     }
-    if (detailSource === 'manage-published') {
+    if (detailSource === 'published') {
       return renderShell(
         <MyPublishedDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
         { mainClassName: 'task-detail-page', mainLabel: 'My published task detail' },
@@ -182,8 +200,13 @@ function App() {
   }
 
   if (view === 'settlement' && selectedTask) {
-    const backToManage = () => setView('manage');
-    const backTo = detailSource.startsWith('manage') ? backToManage : handleBackToList;
+    const backToManage = () => {
+      setSelectedTask(null);
+      setReturnTo('manage');
+      setView('manage');
+    };
+    const backTo =
+      detailSource !== 'plaza' || returnTo === 'manage' ? backToManage : handleBackToList;
     return renderShell(
       <TaskSettlementPage
         task={selectedTask}

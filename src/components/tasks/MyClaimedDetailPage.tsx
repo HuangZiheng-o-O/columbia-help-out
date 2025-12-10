@@ -64,7 +64,7 @@ const MyClaimedDetailPage: FC<MyClaimedDetailPageProps> = ({
             onClick={onBack}
           >
             <span aria-hidden="true">←</span>
-            <span className="task-detail-back-text">Back to tasks</span>
+            <span className="task-detail-back-text">Back to Task List</span>
           </button>
 
           <h1 id="task-detail-heading" className="task-detail-title">
