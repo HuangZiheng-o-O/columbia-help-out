@@ -37,8 +37,9 @@ const createBody = z.object({
 router.post('/', async (req, res) => {
   const parsed = createBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
-  const currentUid = 'mock-user';
-  const currentEmail = 'mock-user@columbia.edu';
+  // TODO: replace with authenticated user uid
+  const currentUid = 'mock-user-1';
+  const currentEmail = 'jordan@columbia.edu';
   const emailVerified = true;
   const data = await taskService.createTask(parsed.data, currentUid, currentEmail, emailVerified);
   res.status(201).json(data);

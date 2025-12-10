@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import './index.css';
 import { taskService } from './api/taskService';
 import type { Task, TaskSortBy, TaskStatus } from './api/taskTypes';
+import { geocodeLocation, haversineMeters, type LatLng, DEFAULT_COORD } from './utils/geocoder';
 import Sidebar, { type SidebarRoute } from './components/layout/Sidebar';
 import AppHeader from './components/layout/AppHeader';
 import SortBar from './components/layout/SortBar';
@@ -18,7 +19,6 @@ type ManageStatus = TaskStatus;
 export type DetailSource = 'plaza' | 'published' | 'claimed';
 const CURRENT_USER_UID = 'mock-user-1';
 type ReturnTo = 'list' | 'manage';
-
 function App() {
   const [view, setView] = useState<AppView>('list');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('discover');
@@ -31,21 +31,42 @@ function App() {
 
   const [searchText, setSearchText] = useState('');
   const [sortBy, setSortBy] = useState<TaskSortBy>('newest');
+  const [userLocation, setUserLocation] = useState<LatLng>(DEFAULT_COORD);
 
   useEffect(() => {
     let isMounted = true;
+
+    // Try to resolve user location; fallback to default
+    if (navigator?.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (!isMounted) return;
+          setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        },
+        () => {
+          if (!isMounted) return;
+          setUserLocation(DEFAULT_COORD);
+        },
+        { enableHighAccuracy: false, timeout: 3000 },
+      );
+    }
 
     async function load() {
       try {
         setIsLoading(true);
         setLoadError(null);
-      const effectiveSort = sortBy === 'nearest' ? 'newest' : sortBy;
-      const result = await taskService.listTasks({
-        searchText,
-        sortBy: effectiveSort,
-        limit: 20,
-      });
-        if (isMounted) {
+        const effectiveSort = sortBy === 'nearest' ? 'newest' : sortBy;
+        const result = await taskService.listTasks({
+          searchText,
+          sortBy: effectiveSort,
+          limit: 20,
+        });
+        if (!isMounted) return;
+
+        if (sortBy === 'nearest') {
+          const sorted = await sortTasksByNearest(result.tasks, userLocation ?? DEFAULT_COORD);
+          if (isMounted) setTasks(sorted);
+        } else {
           setTasks(result.tasks);
         }
       } catch (error) {
@@ -260,3 +281,16 @@ function App() {
 }
 
 export default App;
+
+async function sortTasksByNearest(tasks: Task[], origin: LatLng): Promise<Task[]> {
+  const enriched = await Promise.all(
+    tasks.map(async (task) => {
+      if (task.isOnline) return { task, dist: Number.POSITIVE_INFINITY };
+      // use offline/static geocoding for speed; fallback to default coord
+      const coord = await geocodeLocation(task.location, DEFAULT_COORD, { online: false });
+      const dist = haversineMeters(origin, coord);
+      return { task, dist };
+    }),
+  );
+  return enriched.sort((a, b) => a.dist - b.dist).map((t) => t.task);
+}

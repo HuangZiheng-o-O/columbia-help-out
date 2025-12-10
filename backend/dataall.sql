@@ -24,15 +24,15 @@ INSERT INTO tasks (
   uid,title,short_description,category,credits,location,duration_minutes,status,is_verified,is_online,urgency,created_at,updated_at,claimed_by_uid,claimed_at,completed_at
 ) VALUES
 -- Open: posted by mock-user-1
-('mock-user-1','Borrow 45W USB-C charger','Need a 45W USB-C charger near Butler','campus',30,'Butler Library lobby',30,'open',1,0,'urgent',NOW()-INTERVAL 40 MINUTE,NOW()-INTERVAL 40 MINUTE,NULL,NULL,NULL),
+('mock-user-1','Borrow 45W USB-C charger','Need a 45W USB-C charger near Butler','campus',30,'Butler Library',30,'open',1,0,'urgent',NOW()-INTERVAL 40 MINUTE,NOW()-INTERVAL 40 MINUTE,NULL,NULL,NULL),
 ('mock-user-1','Buy a Lunch','Grab lunch from Ferris Booth Commons','daily',10,'Ferris Booth Commons',20,'open',1,0,'normal',NOW()-INTERVAL 3 HOUR,NOW()-INTERVAL 3 HOUR,NULL,NULL,NULL),
 ('mock-user-1','Flyer distribution','Distribute 50 flyers on campus','daily',20,'College Walk',50,'open',1,0,'flexible',NOW()-INTERVAL 6 HOUR,NOW()-INTERVAL 6 HOUR,NULL,NULL,NULL),
-('mock-user-1','Dorm recycling help','Help carry recycling bags','daily',12,'John Jay dorm',25,'open',1,0,'normal',NOW()-INTERVAL 26 HOUR,NOW()-INTERVAL 26 HOUR,NULL,NULL,NULL),
+('mock-user-1','Dorm recycling help','Help carry recycling bags','daily',12,'John Jay Hall',25,'open',1,0,'normal',NOW()-INTERVAL 26 HOUR,NOW()-INTERVAL 26 HOUR,NULL,NULL,NULL),
 ('mock-user-1','Study notes sharing','Share notes for Econ midterm','academic',16,'Online',20,'open',1,1,'flexible',NOW()-INTERVAL 12 HOUR,NOW()-INTERVAL 12 HOUR,NULL,NULL,NULL),
 
 -- Claimed: publisher mock-user-1, claimed by others
 ('mock-user-1','Help pick a package','Pick a package from package center','campus',15,'Package Center',15,'claimed',1,0,'normal',NOW()-INTERVAL 5 HOUR,NOW()-INTERVAL 5 HOUR,'mock-user-2',NOW()-INTERVAL 4 HOUR,NULL),
-('mock-user-1','Printer setup','Help fix dorm printer','academic',18,'Carman Hall',30,'claimed',1,0,'urgent',NOW()-INTERVAL 1 DAY,NOW()-INTERVAL 1 DAY,'mock-user-6',NOW()-INTERVAL 20 HOUR,NULL),
+('mock-user-1','Printer setup','Help fix dorm printer','academic',18,'Mudd Building',30,'claimed',1,0,'urgent',NOW()-INTERVAL 1 DAY,NOW()-INTERVAL 1 DAY,'mock-user-6',NOW()-INTERVAL 20 HOUR,NULL),
 
 -- Completed: publisher mock-user-1
 ('mock-user-1','Share class notes','Send EE class notes PDF','academic',12,'Online',10,'completed',1,1,'flexible',NOW()-INTERVAL 3 DAY,NOW()-INTERVAL 1 DAY,'mock-user-2',NOW()-INTERVAL 2 DAY,NOW()-INTERVAL 1 DAY),
@@ -42,8 +42,8 @@ INSERT INTO tasks (
 ('mock-user-1','Move small shelf','Need to move a small shelf','daily',25,'East Campus',25,'cancelled',1,0,'normal',NOW()-INTERVAL 4 DAY,NOW()-INTERVAL 3 DAY,NULL,NULL,NULL),
 
 -- Open: posted by mock-user-2
-('mock-user-2','Language exchange','30-min English/Chinese exchange','other',18,'Butler 2F',30,'open',1,0,'flexible',NOW()-INTERVAL 70 MINUTE,NOW()-INTERVAL 70 MINUTE,NULL,NULL,NULL),
-('mock-user-2','Math study buddy','Calc III problem review','academic',22,'Mudd 3rd floor',45,'open',1,0,'normal',NOW()-INTERVAL 8 HOUR,NOW()-INTERVAL 8 HOUR,NULL,NULL,NULL),
+('mock-user-2','Language exchange','30-min English/Chinese exchange','other',18,'Butler Library',30,'open',1,0,'flexible',NOW()-INTERVAL 70 MINUTE,NOW()-INTERVAL 70 MINUTE,NULL,NULL,NULL),
+('mock-user-2','Math study buddy','Calc III problem review','academic',22,'Mudd Building',45,'open',1,0,'normal',NOW()-INTERVAL 8 HOUR,NOW()-INTERVAL 8 HOUR,NULL,NULL,NULL),
 
 -- Claimed: publisher mock-user-2
 ('mock-user-2','Buy a drink','Grab a coffee from Blue Java','daily',5,'Blue Java',10,'claimed',1,0,'normal',NOW()-INTERVAL 6 HOUR,NOW()-INTERVAL 6 HOUR,'mock-user-1',NOW()-INTERVAL 5 HOUR,NULL),
@@ -54,45 +54,45 @@ INSERT INTO tasks (
 ('mock-user-2','Lab partner needed','Quick lab check','academic',14,'CEPSR',20,'completed',1,0,'flexible',NOW()-INTERVAL 9 DAY,NOW()-INTERVAL 6 DAY,'mock-user-3',NOW()-INTERVAL 8 DAY,NOW()-INTERVAL 6 DAY),
 
 -- Cancelled: publisher mock-user-2
-('mock-user-2','Pick up dry cleaning','Dry cleaning pickup at 110th','daily',14,'110th St Laundry',20,'cancelled',1,0,'urgent',NOW()-INTERVAL 7 DAY,NOW()-INTERVAL 5 DAY,'mock-user-1',NOW()-INTERVAL 6 DAY,NULL),
+('mock-user-2','Pick up dry cleaning','Dry cleaning pickup at 110th','daily',14,'Heights Deli',20,'cancelled',1,0,'urgent',NOW()-INTERVAL 7 DAY,NOW()-INTERVAL 5 DAY,'mock-user-1',NOW()-INTERVAL 6 DAY,NULL),
 
 -- Open: posted by mock-user-3
-('mock-user-3','Exam proctor helper','Need someone to watch bags','campus',16,'Lerner',60,'open',1,0,'normal',NOW()-INTERVAL 1 DAY,NOW()-INTERVAL 1 DAY,NULL,NULL,NULL),
-('mock-user-3','Film gear carry','Help carry light stands','daily',35,'Dodge Hall entrance',40,'open',1,0,'urgent',NOW()-INTERVAL 9 HOUR,NOW()-INTERVAL 9 HOUR,NULL,NULL,NULL),
-('mock-user-3','Club event check-in','Check-in desk for 1 hour','other',12,'Lerner ramps',60,'open',1,0,'normal',NOW()-INTERVAL 3 HOUR,NOW()-INTERVAL 3 HOUR,NULL,NULL,NULL),
+('mock-user-3','Exam proctor helper','Need someone to watch bags','campus',16,'Lerner Hall',60,'open',1,0,'normal',NOW()-INTERVAL 1 DAY,NOW()-INTERVAL 1 DAY,NULL,NULL,NULL),
+('mock-user-3','Film gear carry','Help carry light stands','daily',35,'Dodge Hall',40,'open',1,0,'urgent',NOW()-INTERVAL 9 HOUR,NOW()-INTERVAL 9 HOUR,NULL,NULL,NULL),
+('mock-user-3','Club event check-in','Check-in desk for 1 hour','other',12,'Low Steps',60,'open',1,0,'normal',NOW()-INTERVAL 3 HOUR,NOW()-INTERVAL 3 HOUR,NULL,NULL,NULL),
 
 -- Claimed: publisher mock-user-3
 ('mock-user-3','Resume review','30-min resume review','other',20,'Online',30,'claimed',1,1,'flexible',NOW()-INTERVAL 12 HOUR,NOW()-INTERVAL 12 HOUR,'mock-user-5',NOW()-INTERVAL 10 HOUR,NULL),
 ('mock-user-3','Data entry help','Enter survey data to sheet','other',22,'Online',45,'claimed',1,1,'normal',NOW()-INTERVAL 20 HOUR,NOW()-INTERVAL 20 HOUR,'mock-user-1',NOW()-INTERVAL 18 HOUR,NULL),
 
 -- Completed: publisher mock-user-3
-('mock-user-3','Stats tutoring','Stats tutoring for HW set','academic',40,'Butler 6F',60,'completed',1,0,'normal',NOW()-INTERVAL 8 DAY,NOW()-INTERVAL 5 DAY,'mock-user-4',NOW()-INTERVAL 7 DAY,NOW()-INTERVAL 5 DAY),
+('mock-user-3','Stats tutoring','Stats tutoring for HW set','academic',40,'Butler Library',60,'completed',1,0,'normal',NOW()-INTERVAL 8 DAY,NOW()-INTERVAL 5 DAY,'mock-user-4',NOW()-INTERVAL 7 DAY,NOW()-INTERVAL 5 DAY),
 
 -- Open: posted by mock-user-4 (unverified)
 ('mock-user-4','Event photography','Take photos at club event','other',60,'Low Steps',90,'open',0,0,'urgent',NOW()-INTERVAL 2 HOUR,NOW()-INTERVAL 2 HOUR,NULL,NULL,NULL),
-('mock-user-4','Guitar tuning help','Tune an acoustic guitar','other',9,'Broadway dorm lobby',15,'open',0,0,'normal',NOW()-INTERVAL 5 HOUR,NOW()-INTERVAL 5 HOUR,NULL,NULL,NULL),
+('mock-user-4','Guitar tuning help','Tune an acoustic guitar','other',9,'Avery Hall',15,'open',0,0,'normal',NOW()-INTERVAL 5 HOUR,NOW()-INTERVAL 5 HOUR,NULL,NULL,NULL),
 
 -- Claimed: publisher mock-user-4
-('mock-user-4','Grocery drop','Deliver groceries to dorm','daily',18,'Broadway & 114th',25,'claimed',0,0,'normal',NOW()-INTERVAL 30 HOUR,NOW()-INTERVAL 30 HOUR,'mock-user-1',NOW()-INTERVAL 28 HOUR,NULL),
+('mock-user-4','Grocery drop','Deliver groceries to dorm','daily',18,'East Campus',25,'claimed',0,0,'normal',NOW()-INTERVAL 30 HOUR,NOW()-INTERVAL 30 HOUR,'mock-user-1',NOW()-INTERVAL 28 HOUR,NULL),
 
 -- Open: posted by mock-user-5
 ('mock-user-5','CS project pairing','Pair program for 1 hour','academic',32,'Online',60,'open',1,1,'normal',NOW()-INTERVAL 15 HOUR,NOW()-INTERVAL 15 HOUR,NULL,NULL,NULL),
-('mock-user-5','Dog sitting','Watch a corgi for 1 hour','daily',18,'Riverside dorm',60,'open',1,0,'normal',NOW()-INTERVAL 11 HOUR,NOW()-INTERVAL 11 HOUR,NULL,NULL,NULL),
+('mock-user-5','Dog sitting','Watch a corgi for 1 hour','daily',18,'Riverside Park',60,'open',1,0,'normal',NOW()-INTERVAL 11 HOUR,NOW()-INTERVAL 11 HOUR,NULL,NULL,NULL),
 
 -- Claimed: publisher mock-user-5
 ('mock-user-5','Dog walking','Walk a corgi at Riverside','daily',25,'Riverside Park 112th entrance',35,'claimed',1,0,'flexible',NOW()-INTERVAL 10 DAY,NOW()-INTERVAL 7 DAY,'mock-user-2',NOW()-INTERVAL 9 DAY,NULL),
 
 -- Completed: publisher mock-user-5
-('mock-user-5','Poster printing pickup','Pick up posters from print shop','other',16,'116th & Broadway print shop',20,'completed',1,0,'normal',NOW()-INTERVAL 4 DAY,NOW()-INTERVAL 1 DAY,'mock-user-6',NOW()-INTERVAL 3 DAY,NOW()-INTERVAL 1 DAY),
+('mock-user-5','Poster printing pickup','Pick up posters from print shop','other',16,'116th & Broadway',20,'completed',1,0,'normal',NOW()-INTERVAL 4 DAY,NOW()-INTERVAL 1 DAY,'mock-user-6',NOW()-INTERVAL 3 DAY,NOW()-INTERVAL 1 DAY),
 
 -- Cancelled: publisher mock-user-5
 ('mock-user-5','Laptop setup help','Set up dev environment','academic',30,'CEPSR lobby',50,'cancelled',1,0,'normal',NOW()-INTERVAL 3 DAY,NOW()-INTERVAL 2 DAY,NULL,NULL,NULL),
 
 -- Open: posted by mock-user-6
-('mock-user-6','Poster hanging','Hang posters in dorm floors','daily',14,'Hartley lobby',40,'open',1,0,'normal',NOW()-INTERVAL 7 HOUR,NOW()-INTERVAL 7 HOUR,NULL,NULL,NULL),
+('mock-user-6','Poster hanging','Hang posters in dorm floors','daily',14,'Hartley Hall',40,'open',1,0,'normal',NOW()-INTERVAL 7 HOUR,NOW()-INTERVAL 7 HOUR,NULL,NULL,NULL),
 
 -- Claimed: publisher mock-user-6
-('mock-user-6','Piano accompaniment','Accompany for vocal practice','other',26,'Music practice room',45,'claimed',1,0,'normal',NOW()-INTERVAL 16 HOUR,NOW()-INTERVAL 16 HOUR,'mock-user-3',NOW()-INTERVAL 14 HOUR,NULL),
+('mock-user-6','Piano accompaniment','Accompany for vocal practice','other',26,'Diana Center',45,'claimed',1,0,'normal',NOW()-INTERVAL 16 HOUR,NOW()-INTERVAL 16 HOUR,'mock-user-3',NOW()-INTERVAL 14 HOUR,NULL),
 
 -- Open: posted by mock-user-7 (unverified)
 ('mock-user-7','Move boxes','Move 4 boxes to storage','daily',24,'Wien Hall',35,'open',0,0,'urgent',NOW()-INTERVAL 2 DAY,NOW()-INTERVAL 2 DAY,NULL,NULL,NULL),

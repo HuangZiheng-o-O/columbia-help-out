@@ -7,6 +7,7 @@ import {
   type TaskUrgency,
 } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
+import { suggestLocations } from '../../utils/geocoder';
 
 interface CreateTaskPageProps {
   onCancel?: () => void;
@@ -31,6 +32,7 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
 
   const tagOptions: { value: TaskCategory; label: string; icon: string }[] = [
     { value: 'academic', label: 'Academic', icon: '📚' },
@@ -91,6 +93,16 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
       tags: [category],
     };
   }
+
+  const handleLocationChange = (value: string) => {
+    setLocation(value);
+    setLocationSuggestions(suggestLocations(value).map((s) => s.label));
+  };
+
+  const handleSelectSuggestion = (label: string) => {
+    setLocation(label);
+    setLocationSuggestions([]);
+  };
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -277,7 +289,7 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
                 <label className="form-label" htmlFor="task-location">
                   Location <span className="required-indicator">*</span>
                 </label>
-                <div className="input-with-icon">
+                <div className="input-with-icon location-autocomplete">
                   <span className="input-icon">📍</span>
                   <input
                     id="task-location"
@@ -286,9 +298,25 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
                     className="form-input has-icon"
                     placeholder="e.g. Butler Library"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    onChange={(e) => handleLocationChange(e.target.value)}
                     aria-invalid={fieldErrors.location ? 'true' : 'false'}
+                    autoComplete="off"
                   />
+                  {locationSuggestions.length > 0 && (
+                    <ul className="location-suggestions" role="listbox">
+                      {locationSuggestions.map((item) => (
+                        <li key={item}>
+                          <button
+                            type="button"
+                            className="location-suggestion-btn"
+                            onClick={() => handleSelectSuggestion(item)}
+                          >
+                            {item}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 {fieldErrors.location && (
                   <p className="field-error" role="alert">

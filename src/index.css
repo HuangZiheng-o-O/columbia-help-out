@@ -295,6 +295,50 @@ body {
   padding-left: 38px;
 }
 
+.location-autocomplete {
+  position: relative;
+}
+
+.location-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  z-index: 20;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.location-suggestions li + li {
+  margin-top: 4px;
+}
+
+.location-suggestion-btn {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--color-text-default);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.location-suggestion-btn:hover,
+.location-suggestion-btn:focus-visible {
+  background: var(--color-bg-subtle);
+  color: var(--color-primary-700);
+  outline: none;
+}
+
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
