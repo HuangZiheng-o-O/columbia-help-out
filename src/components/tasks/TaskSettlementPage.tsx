@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import type { Task } from '../../api/taskTypes';
 
 interface TaskSettlementPageProps {
@@ -7,6 +7,25 @@ interface TaskSettlementPageProps {
 }
 
 const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack }) => {
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  const handleCopyEmail = async () => {
+    const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(fallback);
+      }
+    } catch (error) {
+      console.warn('Clipboard copy failed', error);
+    }
+    setCopied(true);
+  };
+
   return (
     <article className="task-detail-card" aria-describedby="task-settlement-description">
         <header className="task-detail-header">
@@ -100,6 +119,19 @@ const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack }) => {
             </div>
           </dl>
         </section>
+        <footer className="task-detail-footer">
+          <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
+            Ask First
+          </button>
+          <button type="button" className="btn-action btn-claim">
+            Mark as Done
+          </button>
+          {copied && (
+            <div className="copy-toast" role="status">
+              Publisher email copied
+            </div>
+          )}
+        </footer>
       </article>
   );
 };

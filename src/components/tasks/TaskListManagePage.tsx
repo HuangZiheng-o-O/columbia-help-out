@@ -226,14 +226,14 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
       <div className="task-row-actions">
         <button
           type="button"
-          className="btn-row-ghost"
+          className="btn-row btn-row-primary"
           onClick={() => onSelectTask?.(task.id, task.status)}
         >
           View details
         </button>
         <button
           type="button"
-          className="btn-row-primary"
+          className="btn-row btn-row-success"
           data-action="mark-completed"
           aria-label={`Mark task “${task.title}” as completed`}
           disabled={task.status !== 'unsettled'}
@@ -243,7 +243,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
         </button>
         <button
           type="button"
-          className="btn-row-secondary"
+          className="btn-row btn-row-warning"
           data-action="withdraw"
           aria-label={`Withdraw task “${task.title}”`}
           disabled={disableActions}

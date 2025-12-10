@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import type { Task } from '../../api/taskTypes';
 
 interface TaskDetailPageProps {
@@ -9,6 +9,24 @@ interface TaskDetailPageProps {
 const TaskDetailPage: FC<TaskDetailPageProps> = ({ task, onBack }) => {
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    if (!copied) return;
+    const timer = window.setTimeout(() => setCopied(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  const handleCopyEmail = async () => {
+    const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(fallback);
+      }
+    } catch (error) {
+      console.warn('Clipboard copy failed', error);
+    }
+    setCopied(true);
+  };
 
   return (
     <article className="task-detail-card" aria-describedby="task-meta-description">
@@ -118,12 +136,17 @@ const TaskDetailPage: FC<TaskDetailPageProps> = ({ task, onBack }) => {
       </section>
 
       <footer className="task-detail-footer">
-        <button type="button" className="btn-action btn-ask">
+        <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
           Ask First
         </button>
         <button type="button" className="btn-action btn-claim">
           Claim Now
         </button>
+        {copied && (
+          <div className="copy-toast" role="status">
+            Publisher email copied
+          </div>
+        )}
       </footer>
     </article>
   );

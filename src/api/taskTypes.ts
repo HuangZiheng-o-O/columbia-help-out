@@ -18,6 +18,7 @@ export interface Task {
   durationMinutes: number;
   createdAt: string;
   createdByUid: string;
+  publisherEmail?: string;
   status: TaskStatus;
   isVerified?: boolean;
   isOnline?: boolean;

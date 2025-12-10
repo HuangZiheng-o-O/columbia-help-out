@@ -317,6 +317,52 @@ input, textarea, select { font-family: inherit; }
     color: rgba(255, 255, 255, 0.6);
 }
 
+@media (max-width: 1100px) {
+    .sidebar {
+        width: 96px;
+    }
+
+    .sidebar-inner {
+        align-items: center;
+        padding: 24px 12px;
+    }
+
+    .sidebar-logo-text,
+    .sidebar-nav-label,
+    .sidebar-nav-badge,
+    .sidebar-cta span,
+    .sidebar-user-name {
+        display: none;
+    }
+
+    .sidebar-logo {
+        justify-content: center;
+    }
+
+    .sidebar-nav {
+        align-items: center;
+    }
+
+    .sidebar-nav-item {
+        justify-content: center;
+    }
+
+    .sidebar-cta {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .sidebar-user {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .sidebar {
+        width: 72px;
+    }
+}
+
 
 /* ===========================================
    5. Top Navigation
