@@ -162,36 +162,159 @@ input, textarea, select { font-family: inherit; }
    4. Sidebar
    =========================================== */
 .sidebar {
-    width: 72px;
-    background-color: var(--color-bg-sidebar);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 0;
-    gap: var(--spacing-sm);
+    width: 240px;
+    background: linear-gradient(180deg, #173A81 0%, #102a5c 100%);
+    color: #f8fbff;
     flex-shrink: 0;
-    /* 修正：让侧栏占满高度，避免滚动时断开 */
-    min-height: 100vh; 
+    min-height: 100vh;
 }
 
-.sidebar-icon {
-    width: 48px;
-    height: 48px;
+.sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 28px 20px 24px;
+    gap: 24px;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-logo-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-lg);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.sidebar-logo-text span {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.sidebar-logo-text p {
+    margin: 0;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
     color: rgba(255, 255, 255, 0.7);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: background 0.2s ease, color 0.2s ease;
     cursor: pointer;
-    transition: all var(--transition);
+    width: 100%;
+    text-align: left;
 }
-.sidebar-icon:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    color: white;
+
+.sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
-.sidebar-icon.active {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
+
+.sidebar-nav-item.active {
+    background: #fff;
+    color: #173A81;
+    box-shadow: 0 4px 14px rgba(15, 22, 36, 0.25);
+}
+
+.sidebar-nav-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.sidebar-nav-badge {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(15, 22, 36, 0.15);
+    font-size: 0.75rem;
+}
+
+.sidebar-nav-item.active .sidebar-nav-badge {
+    background: rgba(23, 58, 129, 0.15);
+    color: #173A81;
+}
+
+.sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sidebar-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.sidebar-cta:hover {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.sidebar-user-name {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.sidebar-user-role {
+    margin: 0;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
 }
 
 

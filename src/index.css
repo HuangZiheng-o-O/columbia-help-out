@@ -343,6 +343,22 @@ body {
   cursor: pointer;
 }
 
+/* Urgency inline layout */
+.urgency-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.urgency-field .form-label {
+  margin: 0;
+  min-height: auto;
+}
+
+.urgency-field .select-wrapper {
+  flex: 1;
+}
+
 /* Category Cards */
 .tag-pill-group {
   display: grid;
