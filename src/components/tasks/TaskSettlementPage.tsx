@@ -123,7 +123,7 @@ const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack, hideAsk
         <footer className="task-detail-footer">
           {!hideAskFirst && (
             <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
-              Ask First
+              Copy Email
             </button>
           )}
           <button type="button" className="btn-action btn-claim">

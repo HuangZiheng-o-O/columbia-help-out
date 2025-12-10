@@ -156,7 +156,7 @@ setTask(result.data.task);
 await claimTask({ taskId });
 ```
 
-* Buttons such as “Ask First” map to `openConversationWithPublisher`.
+* Buttons such as “Copy Email” map to `openConversationWithPublisher`.
 
 ## 4. Accessibility Checklist
 

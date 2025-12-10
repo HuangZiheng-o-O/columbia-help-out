@@ -11,8 +11,8 @@
 - Disabled action buttons must render gray with reduced opacity and a line-through.
 
 ## Detail Views (Discover vs. Manage)
-- Discover (home) detail view shows “Ask First” with clipboard copy + toast.
-- Task List / Manage detail/settlement views hide “Ask First”.
+- Discover (home) detail view shows “Copy Email” with clipboard copy + toast.
+- Task List / Manage detail/settlement views hide “Copy Email”.
 - View detail from Manage can route to settlement when status is completed; otherwise to detail.
 
 ## UI/UX Layout & Scroll

@@ -117,7 +117,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
           type="button"
           className="btn-action btn-ask"
         >
-          Ask first
+          Copy Email
         </button>
         <button
           type="button"
