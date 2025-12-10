@@ -1,46 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { Task, TaskStatus } from '../../api/taskTypes';
+import { taskService } from '../../api/taskService';
 
-type TaskStatus = 'unsettled' | 'completed' | 'withdrawn';
 type Action = 'mark-completed' | 'withdraw';
 type TabKey = 'published' | 'claimed';
-
-interface ManageTask {
-  id: string;
-  title: string;
-  status: TaskStatus;
-  meta: string;
-  helpersInterested?: number;
-}
-
-const initialPublished: ManageTask[] = [
-  {
-    id: 'task_buy_lunch',
-    title: 'Buy a Lunch',
-    status: 'unsettled',
-    meta: 'Posted by you · 2 helpers interested',
-  },
-  {
-    id: 'task_pick_package',
-    title: 'Help pick a package',
-    status: 'completed',
-    meta: 'Completed · Waiting for settlement',
-  },
-  {
-    id: 'task_friend_referral',
-    title: 'Friend referral bonus',
-    status: 'withdrawn',
-    meta: 'Withdrawn by you · No longer visible to helpers',
-  },
-];
-
-const initialClaimed: ManageTask[] = [
-  {
-    id: 'task_buy_drink',
-    title: 'Buy a drink',
-    status: 'unsettled',
-    meta: 'You claimed this task · Waiting for completion',
-  },
-];
 
 interface TaskListManagePageProps {
   onSelectTask?: (taskId: string, status: TaskStatus) => void;
@@ -48,8 +11,14 @@ interface TaskListManagePageProps {
 
 const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
   const [activeTab, setActiveTab] = useState<TabKey>('published');
-  const [publishedTasks, setPublishedTasks] = useState(initialPublished);
-  const [claimedTasks, setClaimedTasks] = useState(initialClaimed);
+  const [publishedTasks, setPublishedTasks] = useState<Task[]>([]);
+  const [claimedTasks, setClaimedTasks] = useState<Task[]>([]);
+  const [loadingPublished, setLoadingPublished] = useState(false);
+  const [loadingClaimed, setLoadingClaimed] = useState(false);
+  const [errorPublished, setErrorPublished] = useState<string | null>(null);
+  const [errorClaimed, setErrorClaimed] = useState<string | null>(null);
+
+  const currentUserUid = 'mock-user-1';
 
   const summary = useMemo(
     () => ({
@@ -59,28 +28,56 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
     [publishedTasks, claimedTasks],
   );
 
-  const handleAction = (listType: TabKey, taskId: string, action: Action) => {
-    const updater =
-      listType === 'published' ? setPublishedTasks : setClaimedTasks;
+  useEffect(() => {
+    void loadPublished();
+    void loadClaimed();
+  }, []);
 
-    updater((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status:
-                action === 'mark-completed'
-                  ? 'completed'
-                  : action === 'withdraw'
-                  ? 'withdrawn'
-                  : task.status,
-            }
-          : task,
-      ),
-    );
+  async function loadPublished() {
+    try {
+      setLoadingPublished(true);
+      setErrorPublished(null);
+      const res = await taskService.listTasks({ scope: 'published', ownerUid: currentUserUid });
+      setPublishedTasks(res.tasks);
+    } catch (error) {
+      console.error(error);
+      setErrorPublished('Failed to load your published tasks.');
+    } finally {
+      setLoadingPublished(false);
+    }
+  }
 
-    // TODO: Replace with Firebase call (update task status).
-    console.log('handleTaskAction', { listType, taskId, action });
+  async function loadClaimed() {
+    try {
+      setLoadingClaimed(true);
+      setErrorClaimed(null);
+      const res = await taskService.listTasks({ scope: 'claimed', claimedByUid: currentUserUid });
+      setClaimedTasks(res.tasks);
+    } catch (error) {
+      console.error(error);
+      setErrorClaimed('Failed to load your claimed tasks.');
+    } finally {
+      setLoadingClaimed(false);
+    }
+  }
+
+  const handleAction = async (listType: TabKey, taskId: string, action: Action) => {
+    const status: TaskStatus = action === 'mark-completed' ? 'completed' : 'cancelled';
+    try {
+      await taskService.updateTaskStatus({
+        taskId,
+        status,
+        completedAt: status === 'completed' ? new Date().toISOString() : undefined,
+      });
+      if (listType === 'published') {
+        await loadPublished();
+      } else {
+        await loadClaimed();
+      }
+    } catch (error) {
+      console.error(error);
+      // TODO: surface toast/error UI
+    }
   };
 
   const tabLabels: Record<TabKey, string> = {
@@ -151,6 +148,8 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
         {(['published', 'claimed'] as TabKey[]).map((tab) => {
           const isActive = tab === activeTab;
           const list = tab === 'published' ? publishedTasks : claimedTasks;
+          const isLoading = tab === 'published' ? loadingPublished : loadingClaimed;
+          const errorText = tab === 'published' ? errorPublished : errorClaimed;
           const emptyState =
             tab === 'published'
               ? 'You have not published any tasks yet.'
@@ -167,19 +166,33 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
             >
               <h2 className="visually-hidden">{tabLabels[tab]}</h2>
 
-              <ul className="task-list-rows" role="list">
-                {list.map((task) => (
-                  <TaskListRow
-                    key={task.id}
-                    task={task}
-                    listType={tab}
-                    onAction={handleAction}
-                    onSelectTask={onSelectTask}
-                  />
-                ))}
-              </ul>
+              {isLoading && (
+                <p className="task-panel-empty" role="status">
+                  Loading…
+                </p>
+              )}
 
-              {list.length === 0 && (
+              {errorText && (
+                <p className="task-panel-empty" role="alert">
+                  {errorText}
+                </p>
+              )}
+
+              {!isLoading && !errorText && (
+                <ul className="task-list-rows" role="list">
+                  {list.map((task) => (
+                    <TaskListRow
+                      key={task.id}
+                      task={task}
+                      listType={tab}
+                      onAction={handleAction}
+                      onSelectTask={onSelectTask}
+                    />
+                  ))}
+                </ul>
+              )}
+
+              {list.length === 0 && !isLoading && !errorText && (
                 <p className="task-panel-empty" aria-live="polite">
                   {emptyState}
                 </p>
@@ -193,21 +206,20 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
 };
 
 interface TaskListRowProps {
-  task: ManageTask;
+  task: Task;
   listType: TabKey;
   onAction: (listType: TabKey, taskId: string, action: Action) => void;
   onSelectTask?: (taskId: string, status: TaskStatus) => void;
 }
 
 const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProps) => {
-  const statusClass =
-    task.status === 'unsettled'
-      ? 'task-status--unsettled'
-      : task.status === 'completed'
-      ? 'task-status--completed'
-      : 'task-status--withdrawn';
-
-  const disableActions = task.status === 'withdrawn';
+  const statusUi = mapStatusToUi(task.status);
+  const disableWithdraw = task.status === 'cancelled';
+  const disableComplete = task.status !== 'open' && task.status !== 'claimed';
+  const meta =
+    listType === 'published'
+      ? `Posted by you${task.claimedByUid ? ' · Claimed' : ''}`
+      : 'You claimed this task';
 
   return (
     <li
@@ -218,9 +230,9 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
       <div className="task-row-main">
         <div className="task-row-title-line">
           <p className="task-row-title">{task.title}</p>
-          <span className={`task-row-status ${statusClass}`}>{capitalize(task.status)}</span>
+          <span className={`task-row-status ${statusUi.className}`}>{statusUi.label}</span>
         </div>
-        <p className="task-row-meta">{task.meta}</p>
+        <p className="task-row-meta">{meta}</p>
       </div>
 
       <div className="task-row-actions">
@@ -236,7 +248,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
           className="btn-row btn-row-success"
           data-action="mark-completed"
           aria-label={`Mark task “${task.title}” as completed`}
-          disabled={task.status !== 'unsettled'}
+          disabled={disableComplete}
           onClick={() => onAction(listType, task.id, 'mark-completed')}
         >
           Mark Completed
@@ -246,7 +258,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
           className="btn-row btn-row-warning"
           data-action="withdraw"
           aria-label={`Withdraw task “${task.title}”`}
-          disabled={disableActions}
+          disabled={disableWithdraw}
           onClick={() => onAction(listType, task.id, 'withdraw')}
         >
           Withdraw
@@ -256,8 +268,18 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
   );
 };
 
-function capitalize(value: string) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
+function mapStatusToUi(status: TaskStatus): { label: string; className: string } {
+  switch (status) {
+    case 'completed':
+      return { label: 'Completed', className: 'task-status--completed' };
+    case 'cancelled':
+      return { label: 'Withdrawn', className: 'task-status--withdrawn' };
+    case 'claimed':
+      return { label: 'Claimed', className: 'task-status--unsettled' };
+    case 'open':
+    default:
+      return { label: 'Open', className: 'task-status--unsettled' };
+  }
 }
 
 export default TaskListManagePage;

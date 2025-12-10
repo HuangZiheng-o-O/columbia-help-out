@@ -3,6 +3,7 @@ import type {
   TaskListQuery,
   TaskListResult,
   CreateTaskInput,
+  UpdateTaskStatusInput,
 } from './taskTypes';
 
 /** Task service interface: contract between frontend and backend. */
@@ -10,9 +11,7 @@ export interface TaskService {
   listTasks(query: TaskListQuery): Promise<TaskListResult>;
   getTaskById(id: string): Promise<Task | null>;
   createTask(input: CreateTaskInput): Promise<Task>;
-  // Reserved for future features:
-  // claimTask(taskId: string): Promise<Task>;
-  // completeTask(taskId: string): Promise<Task>;
+  updateTaskStatus(input: UpdateTaskStatusInput): Promise<Task>;
 }
 
 /** Current task service implementation: in-memory mock.
@@ -54,13 +53,62 @@ function createMockTaskService(): TaskService {
       urgency: 'flexible',
       tags: ['advice'],
     },
+    {
+      id: '3',
+      title: 'Pick up package',
+      shortDescription: 'Small box at Lerner front desk.',
+      category: 'campus',
+      credits: 20,
+      location: 'Lerner',
+      durationMinutes: 15,
+      createdAt: new Date().toISOString(),
+      createdByUid: 'mock-user-1',
+      publisherEmail: 'jordan@columbia.edu',
+      status: 'completed',
+      claimedByUid: 'mock-user-2',
+      claimedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      isVerified: true,
+      tags: ['package'],
+    },
+    {
+      id: '4',
+      title: 'Friend referral bonus',
+      shortDescription: 'Share referral link with a friend.',
+      category: 'other',
+      credits: 10,
+      location: 'Online',
+      durationMinutes: 5,
+      createdAt: new Date().toISOString(),
+      createdByUid: 'mock-user-1',
+      publisherEmail: 'jordan@columbia.edu',
+      status: 'cancelled',
+      isOnline: true,
+      tags: ['referral'],
+    },
   ];
 
   return {
     async listTasks(query: TaskListQuery): Promise<TaskListResult> {
-      const { searchText, sortBy = 'newest' } = query;
+      const { searchText, sortBy = 'newest', ownerUid, claimedByUid, status, scope } = query;
 
       let tasks = [...mockTasks];
+
+      if (scope === 'published' && ownerUid) {
+        tasks = tasks.filter((t) => t.createdByUid === ownerUid);
+      }
+      if (scope === 'claimed' && claimedByUid) {
+        tasks = tasks.filter((t) => t.claimedByUid === claimedByUid);
+      }
+      if (ownerUid && !scope) {
+        tasks = tasks.filter((t) => t.createdByUid === ownerUid);
+      }
+      if (claimedByUid && !scope) {
+        tasks = tasks.filter((t) => t.claimedByUid === claimedByUid);
+      }
+      if (status) {
+        tasks = tasks.filter((t) => t.status === status);
+      }
 
       if (searchText?.trim()) {
         const q = searchText.toLowerCase();
@@ -113,6 +161,26 @@ function createMockTaskService(): TaskService {
 
       mockTasks.unshift(newTask);
       return newTask;
+    },
+
+    async updateTaskStatus(input: UpdateTaskStatusInput): Promise<Task> {
+      const idx = mockTasks.findIndex((t) => t.id === input.taskId);
+      if (idx === -1) {
+        throw new Error('Task not found');
+      }
+      const target = mockTasks[idx];
+      const updated: Task = {
+        ...target,
+        status: input.status,
+        claimedByUid: input.claimedByUid ?? target.claimedByUid,
+        claimedAt: input.claimedByUid ? new Date().toISOString() : target.claimedAt,
+        completedAt:
+          input.status === 'completed'
+            ? input.completedAt ?? new Date().toISOString()
+            : target.completedAt,
+      };
+      mockTasks[idx] = updated;
+      return updated;
     },
   };
 }

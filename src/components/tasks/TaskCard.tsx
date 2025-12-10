@@ -17,6 +17,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
     isVerified,
     urgency,
     isOnline,
+    tags,
   } = task;
 
   const createdLabel = formatCreatedAt(createdAt);
@@ -91,6 +92,16 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
           </dd>
         </div>
       </dl>
+
+      {tags && tags.length > 0 && (
+        <div className="task-tags-row" aria-label="Task tags">
+          {tags.map((tag) => (
+            <span key={tag} className="task-tag-chip">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="task-actions">
         {onSelectTask && (

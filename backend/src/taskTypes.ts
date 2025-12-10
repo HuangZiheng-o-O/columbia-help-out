@@ -1,13 +1,8 @@
-/** Task category */
 export type TaskCategory = 'campus' | 'daily' | 'academic' | 'other';
-
-/** Task urgency level */
 export type TaskUrgency = 'urgent' | 'flexible' | 'normal';
-
-/** Task status */
 export type TaskStatus = 'open' | 'claimed' | 'completed' | 'cancelled';
+export type TaskSortBy = 'newest' | 'nearest' | 'credits_desc';
 
-/** Frontend Task model, aligned with Firestore documents. */
 export interface Task {
   id: string;
   title: string;
@@ -29,10 +24,6 @@ export interface Task {
   completedAt?: string | null;
 }
 
-/** Sort options used for task lists. */
-export type TaskSortBy = 'newest' | 'nearest' | 'credits_desc';
-
-/** Query parameters for listing tasks. */
 export interface TaskListQuery {
   searchText?: string;
   sortBy?: TaskSortBy;
@@ -44,21 +35,11 @@ export interface TaskListQuery {
   scope?: 'all' | 'published' | 'claimed';
 }
 
-/** List result structure. */
 export interface TaskListResult {
   tasks: Task[];
   nextCursor?: string;
 }
 
-export interface UpdateTaskStatusInput {
-  taskId: string;
-  status: TaskStatus;
-  claimedByUid?: string | null;
-  completedAt?: string | null;
-  cancelledReason?: string;
-}
-
-/** Payload for creating a new task. */
 export interface CreateTaskInput {
   title: string;
   shortDescription: string;
@@ -70,3 +51,13 @@ export interface CreateTaskInput {
   urgency?: TaskUrgency;
   tags?: string[];
 }
+
+export interface UpdateTaskStatusInput {
+  taskId: string;
+  status: TaskStatus;
+  claimedByUid?: string | null;
+  completedAt?: string | null;
+  cancelledReason?: string;
+}
+
+

@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import './index.css';
 import { taskService } from './api/taskService';
-import type { Task, TaskSortBy } from './api/taskTypes';
+import type { Task, TaskSortBy, TaskStatus } from './api/taskTypes';
 import Sidebar, { type SidebarRoute } from './components/layout/Sidebar';
 import AppHeader from './components/layout/AppHeader';
 import SortBar from './components/layout/SortBar';
@@ -12,7 +12,7 @@ import TaskSettlementPage from './components/tasks/TaskSettlementPage';
 import TaskListManagePage from './components/tasks/TaskListManagePage';
 
 type AppView = 'list' | 'create' | 'detail' | 'settlement' | 'manage';
-type ManageStatus = 'unsettled' | 'completed' | 'withdrawn';
+type ManageStatus = TaskStatus;
 
 function App() {
   const [view, setView] = useState<AppView>('list');
@@ -32,11 +32,12 @@ function App() {
       try {
         setIsLoading(true);
         setLoadError(null);
-        const result = await taskService.listTasks({
-          searchText,
-          sortBy,
-          limit: 20,
-        });
+      const effectiveSort = sortBy === 'nearest' ? 'newest' : sortBy;
+      const result = await taskService.listTasks({
+        searchText,
+        sortBy: effectiveSort,
+        limit: 20,
+      });
         if (isMounted) {
           setTasks(result.tasks);
         }
