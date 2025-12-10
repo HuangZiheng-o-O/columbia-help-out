@@ -688,8 +688,8 @@ body {
   gap: 10px;
   padding: 10px 12px;
   border-radius: 10px;
-  background-color: var(--color-primary-50);
-  border-left: 4px solid var(--color-primary-500);
+  background-color: rgba(217, 119, 6, 0.12);
+  border-left: 4px solid var(--color-warning);
 }
 
 .task-safety-icon {
@@ -699,7 +699,7 @@ body {
 
 .task-safety-text {
   font-size: 0.9rem;
-  color: var(--color-primary-800);
+  color: var(--color-warning);
   margin: 0;
 }
 
