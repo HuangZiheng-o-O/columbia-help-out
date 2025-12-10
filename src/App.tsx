@@ -7,9 +7,14 @@ import AppHeader from './components/layout/AppHeader';
 import SortBar from './components/layout/SortBar';
 import TaskGrid from './components/tasks/TaskGrid';
 import CreateTaskPage from './components/tasks/CreateTaskPage';
+import TaskDetailPage from './components/tasks/TaskDetailPage';
+import TaskSettlementPage from './components/tasks/TaskSettlementPage';
+
+type AppView = 'list' | 'create' | 'detail' | 'settlement';
 
 function App() {
-  const [view, setView] = useState<'list' | 'create'>('list');
+  const [view, setView] = useState<AppView>('list');
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -51,21 +56,70 @@ function App() {
     };
   }, [searchText, sortBy]);
 
-  return view === 'create' ? (
-    <>
-      <a href="#create-task-title" className="skip-link">
-        Skip to create task form
-      </a>
+  const handleSelectTask = (task: Task) => {
+    setSelectedTask(task);
+    setView('detail');
+  };
 
-      <div className="app-shell app-container">
-        <Sidebar />
-        <CreateTaskPage
-          onCancel={() => setView('list')}
-          onCreated={() => setView('list')}
-        />
-      </div>
-    </>
-  ) : (
+  const handleBackToList = () => {
+    setSelectedTask(null);
+    setView('list');
+  };
+
+  const handleViewSettlement = () => {
+    if (selectedTask) {
+      setView('settlement');
+    }
+  };
+
+  if (view === 'create') {
+    return (
+      <>
+        <a href="#create-task-title" className="skip-link">
+          Skip to create task form
+        </a>
+
+        <div className="app-shell app-container">
+          <Sidebar />
+          <CreateTaskPage onCancel={handleBackToList} onCreated={handleBackToList} />
+        </div>
+      </>
+    );
+  }
+
+  if (view === 'detail' && selectedTask) {
+    return (
+      <>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <div className="app-shell app-container">
+          <Sidebar />
+          <TaskDetailPage
+            task={selectedTask}
+            onBack={handleBackToList}
+            onViewSettlement={handleViewSettlement}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (view === 'settlement' && selectedTask) {
+    return (
+      <>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <div className="app-shell app-container">
+          <Sidebar />
+          <TaskSettlementPage task={selectedTask} onBack={handleBackToList} />
+        </div>
+      </>
+    );
+  }
+
+  return (
     <>
       <a href="#main-content" className="skip-link">
         Skip to main content
@@ -105,7 +159,11 @@ function App() {
             )}
 
             {!isLoading && !loadError && (
-              <TaskGrid tasks={tasks} emptyHint="No tasks found yet." />
+              <TaskGrid
+                tasks={tasks}
+                emptyHint="No tasks found yet."
+                onSelectTask={handleSelectTask}
+              />
             )}
           </section>
         </main>

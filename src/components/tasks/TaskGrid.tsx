@@ -5,9 +5,10 @@ import TaskCard from './TaskCard';
 interface TaskGridProps {
   tasks: Task[];
   emptyHint?: string;
+  onSelectTask?: (task: Task) => void;
 }
 
-const TaskGrid: FC<TaskGridProps> = ({ tasks, emptyHint }) => {
+const TaskGrid: FC<TaskGridProps> = ({ tasks, emptyHint, onSelectTask }) => {
   if (!tasks.length) {
     return (
       <p className="task-list-empty" role="status">
@@ -19,7 +20,7 @@ const TaskGrid: FC<TaskGridProps> = ({ tasks, emptyHint }) => {
   return (
     <div className="task-grid">
       {tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
+        <TaskCard key={task.id} task={task} onSelectTask={onSelectTask} />
       ))}
     </div>
   );

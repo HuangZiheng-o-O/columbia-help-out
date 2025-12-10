@@ -3,9 +3,10 @@ import type { Task } from '../../api/taskTypes';
 
 interface TaskCardProps {
   task: Task;
+  onSelectTask?: (task: Task) => void;
 }
 
-const TaskCard: FC<TaskCardProps> = ({ task }) => {
+const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
   const {
     title,
     category,
@@ -92,6 +93,15 @@ const TaskCard: FC<TaskCardProps> = ({ task }) => {
       </dl>
 
       <div className="task-actions">
+        {onSelectTask && (
+          <button
+            type="button"
+            className="btn-action btn-view"
+            onClick={() => onSelectTask(task)}
+          >
+            View details
+          </button>
+        )}
         <button
           type="button"
           className="btn-action btn-ask"

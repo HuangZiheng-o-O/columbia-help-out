@@ -1,3 +1,170 @@
+# Firebase Task Plaza API Contract
+
+This document describes the data model and callable HTTPS APIs that the frontend expects when integrating with Firebase. All examples use English wording to match the codebase.
+
+## 1. Firestore Data Model
+
+### 1.1 Collection `tasks`
+
+```ts
+interface TaskDoc {
+  taskId: string;                 // document id
+  title: string;
+  description: string;
+  credits: number;
+  estimatedMinutes: number;
+  locationName: string;
+  locationAddress?: string;
+  postedAt: FirebaseFirestore.Timestamp;
+  deadlineAt?: FirebaseFirestore.Timestamp;
+  publisherId: string;
+  publisherStats: {
+    completedTasks: number;
+    cancellationRate: number;     // 0 ~ 1
+    campusVerified: boolean;
+  };
+  pickupCodeRequired: boolean;
+  status: 'OPEN' | 'CLAIMED' | 'COMPLETED' | 'CANCELLED';
+  claimantId?: string;
+  claimedAt?: FirebaseFirestore.Timestamp;
+  createdAt: FirebaseFirestore.Timestamp;
+  updatedAt: FirebaseFirestore.Timestamp;
+}
+```
+
+### 1.2 Collection `users`
+
+```ts
+interface UserDoc {
+  displayName: string;
+  photoURL?: string;
+  campusVerified: boolean;
+  stats: {
+    completedTasks: number;
+    cancellationRate: number; // 0 ~ 1
+  };
+}
+```
+
+## 2. Cloud Functions / HTTPS APIs
+
+Every function should validate authentication (`context.auth`) when the action requires a signed‑in user.
+
+### 2.1 `getTaskDetail`
+
+*Type*: HTTPS callable or REST `GET /tasks/{taskId}`
+
+**Request**
+
+```json
+{ "taskId": "abcd1234" }
+```
+
+**Response**
+
+```json
+{
+  "task": {
+    "taskId": "abcd1234",
+    "title": "Help Pick Up My Package",
+    "description": "Pick up a package for me...",
+    "credits": 15,
+    "estimatedMinutes": 15,
+    "locationName": "Butler Library Lobby",
+    "postedAt": "2025-02-01T12:05:00Z",
+    "deadlineAt": "2025-02-01T17:00:00Z",
+    "publisherStats": {
+      "completedTasks": 23,
+      "cancellationRate": 0.05,
+      "campusVerified": true
+    },
+    "pickupCodeRequired": true,
+    "status": "OPEN"
+  }
+}
+```
+
+**Errors**
+
+* `task-not-found`
+
+### 2.2 `claimTask`
+
+*Type*: HTTPS callable or REST `POST /tasks/{taskId}:claim` – requires auth.
+
+**Request**
+
+```json
+{ "taskId": "abcd1234" }
+```
+
+**Logic**
+
+1. Ensure `status === OPEN`.
+2. Update the document to `CLAIMED`, set `claimantId`, `claimedAt`.
+3. Optionally notify the publisher (FCM / email).
+
+**Response**
+
+```json
+{ "success": true, "status": "CLAIMED" }
+```
+
+**Errors**
+
+* `task-not-found`
+* `task-already-claimed`
+* `unauthenticated`
+
+### 2.3 `openConversationWithPublisher`
+
+*Type*: HTTPS callable or REST `POST /tasks/{taskId}:openConversation`
+
+**Request**
+
+```json
+{ "taskId": "abcd1234" }
+```
+
+**Response**
+
+```json
+{
+  "success": true,
+  "conversationId": "conv_xyz",
+  "publisherId": "user_publisher_id"
+}
+```
+
+Frontend can navigate to the messaging UI using `conversationId`.
+
+## 3. Frontend Integration Notes
+
+* Obtain `taskId` from routing (e.g., `/task/:taskId` or query string).
+* Use Firebase modular SDK:
+  * `initializeApp`, `getFunctions`, `httpsCallable`.
+* Example pseudo-code:
+
+```ts
+const functions = getFunctions(app);
+const getTaskDetail = httpsCallable(functions, 'getTaskDetail');
+const claimTask = httpsCallable(functions, 'claimTask');
+
+const result = await getTaskDetail({ taskId });
+setTask(result.data.task);
+
+await claimTask({ taskId });
+```
+
+* Buttons such as “Ask First” map to `openConversationWithPublisher`.
+
+## 4. Accessibility Checklist
+
+* Task detail pages use `<main>` + `<article>` + `<section>` structure.
+* Non-decorative icons always have text or `aria-hidden="true"`.
+* Keyboard focus styles use existing Columbia design tokens.
+* Status text (e.g., “Unsettled”) uses textual indicators, not color alone.
+* No timed actions are enforced; deadlines are informational.
 # Firebase Backend API Contract for Task Plaza
 
 This document describes the backend API contract expected by the frontend.
