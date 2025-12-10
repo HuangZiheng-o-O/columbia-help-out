@@ -2,6 +2,7 @@ import type { FC, SVGProps } from 'react';
 import { useState } from 'react';
 import type { Task } from '../../api/taskTypes';
 import { copyTextToClipboard } from '../../utils/clipboard';
+import { taskService } from '../../api/taskService';
 
 interface TaskCardProps {
   task: Task;
@@ -24,6 +25,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
 
   const createdLabel = formatCreatedAt(createdAt);
   const [copied, setCopied] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const handleCopyEmail = async () => {
     const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
@@ -31,6 +33,23 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleClaim = async () => {
+    try {
+      setIsClaiming(true);
+      await taskService.updateTaskStatus({
+        taskId: task.id,
+        status: 'claimed',
+        claimedByUid: 'mock-user-1',
+      });
+      alert('Claimed successfully.');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to claim. Please try again.');
+    } finally {
+      setIsClaiming(false);
     }
   };
 
@@ -115,36 +134,44 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
         </div>
       )}
 
-      <div className="task-actions task-actions-right">
-        {onSelectTask && (
-          <button
-            type="button"
-            className="task-action-btn task-action-secondary"
-            onClick={() => onSelectTask(task)}
-          >
-            View details
-          </button>
-        )}
-        <div className="task-action-with-toast">
-          <button
-            type="button"
-            className="task-action-btn task-action-ghost"
-            onClick={handleCopyEmail}
-          >
-            Copy Email
-          </button>
-          {copied && (
-            <div className="copy-toast show" role="status">
-              Email copied
-            </div>
+      <div className="task-actions task-actions-split">
+        <div className="task-action-col task-action-left">
+          {onSelectTask && (
+            <button
+              type="button"
+              className="task-action-btn task-action-secondary"
+              onClick={() => onSelectTask(task)}
+            >
+              View details
+            </button>
           )}
         </div>
-        <button
-          type="button"
-          className="task-action-btn task-action-primary"
-        >
-          Claim now
-        </button>
+        <div className="task-action-col task-action-center">
+          <div className="task-action-with-toast">
+            <button
+              type="button"
+              className="task-action-btn task-action-ghost"
+              onClick={handleCopyEmail}
+            >
+              Copy Email
+            </button>
+            {copied && (
+              <div className="copy-toast show" role="status">
+                Email copied
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="task-action-col task-action-right">
+          <button
+            type="button"
+            className="task-action-btn task-action-primary"
+            disabled={isClaiming}
+            onClick={handleClaim}
+          >
+            Claim now
+          </button>
+        </div>
       </div>
     </article>
   );

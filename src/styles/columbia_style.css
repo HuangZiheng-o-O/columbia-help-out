@@ -628,6 +628,28 @@ input, textarea, select { font-family: inherit; }
     flex-wrap: wrap;
 }
 
+.task-actions-split {
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.task-action-col {
+    flex: 1 1 0;
+    display: flex;
+}
+
+.task-action-left {
+    justify-content: flex-start;
+}
+
+.task-action-center {
+    justify-content: center;
+}
+
+.task-action-right {
+    justify-content: flex-end;
+}
+
 .task-actions.task-actions-right {
     justify-content: flex-end;
     gap: 10px;
@@ -643,6 +665,10 @@ input, textarea, select { font-family: inherit; }
     border-radius: var(--radius-lg);
     padding: 10px 16px;
     font-weight: 700;
+    min-width: 0;
+    width: 100%;
+    max-width: 180px;
+    justify-content: center;
     cursor: pointer;
     transition: background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition);
 }

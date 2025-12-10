@@ -13,6 +13,7 @@ const PlazaDetailPage: FC<PlazaDetailPageProps> = ({ task, onBack }) => {
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
   const [copied, setCopied] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   useEffect(() => {
     if (!copied) return;
@@ -26,6 +27,23 @@ const PlazaDetailPage: FC<PlazaDetailPageProps> = ({ task, onBack }) => {
     if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleClaim = async () => {
+    try {
+      setIsClaiming(true);
+      await taskService.updateTaskStatus({
+        taskId: task.id,
+        status: 'claimed',
+        claimedByUid: 'mock-user-1',
+      });
+      alert('Claimed successfully.');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to claim. Please try again.');
+    } finally {
+      setIsClaiming(false);
     }
   };
 
@@ -137,10 +155,15 @@ const PlazaDetailPage: FC<PlazaDetailPageProps> = ({ task, onBack }) => {
       </section>
 
       <footer className="task-detail-footer">
-        <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
+        <button type="button" className="task-action-btn task-action-ghost" onClick={handleCopyEmail}>
           Copy Email
         </button>
-        <button type="button" className="btn-action btn-claim" onClick={() => alert('Claim placeholder')}>
+        <button
+          type="button"
+          className="task-action-btn task-action-primary"
+          disabled={isClaiming}
+          onClick={handleClaim}
+        >
           Claim Now
         </button>
         {copied && (
