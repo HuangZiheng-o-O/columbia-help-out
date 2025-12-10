@@ -8,22 +8,23 @@ interface TaskSettlementPageProps {
 
 const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack }) => {
   return (
-    <main id="main-content" className="task-detail-page" role="main">
-      <article className="task-detail-card" aria-describedby="task-settlement-description">
+    <article className="task-detail-card" aria-describedby="task-settlement-description">
         <header className="task-detail-header">
           <div className="task-detail-header-main">
             <button
               type="button"
               className="task-detail-back-btn"
-              onClick={onBack}
               aria-label="Back to task list"
+              onClick={onBack}
             >
               <span aria-hidden="true">←</span>
               <span className="task-detail-back-text">Back to tasks</span>
             </button>
+
             <h1 id="task-detail-heading" className="task-detail-title">
               {task.title}
             </h1>
+
             <p className="task-settlement-status" id="task-settlement-description">
               Unsettled
             </p>
@@ -33,19 +34,19 @@ const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack }) => {
             <span className="task-campus-badge">Campus</span>
             <div className="task-detail-header-meta" aria-label="Task quick summary">
               <div className="task-meta-block">
-                <dt className="task-meta-label">Credits</dt>
-                <dd className="task-meta-value">
+                <span className="task-meta-label">Credits</span>
+                <span className="task-meta-value">
                   <span className="task-meta-strong">{task.credits}</span>
                   <span className="task-meta-unit">credits</span>
-                </dd>
+                </span>
               </div>
               <div className="task-meta-divider" aria-hidden="true"></div>
               <div className="task-meta-block">
-                <dt className="task-meta-label">Est. Time</dt>
-                <dd className="task-meta-value">
+                <span className="task-meta-label">Est. Time</span>
+                <span className="task-meta-value">
                   <span className="task-meta-strong">{task.durationMinutes}</span>
                   <span className="task-meta-unit">mins</span>
-                </dd>
+                </span>
               </div>
             </div>
           </div>
@@ -84,10 +85,7 @@ const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack }) => {
 
         <hr className="task-detail-separator" aria-hidden="true" />
 
-        <section
-          className="task-detail-section task-people-section"
-          aria-labelledby="task-people-heading"
-        >
+        <section className="task-detail-section task-people-section" aria-labelledby="task-people-heading">
           <h2 id="task-people-heading" className="visually-hidden">
             People related to this task
           </h2>
@@ -103,7 +101,6 @@ const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack }) => {
           </dl>
         </section>
       </article>
-    </main>
   );
 };
 

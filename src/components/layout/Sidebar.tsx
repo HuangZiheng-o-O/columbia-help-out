@@ -1,50 +1,67 @@
 import type { FC, SVGProps, JSX } from 'react';
 
+export type SidebarRoute = 'discover' | 'tasks' | 'messages' | 'calendar' | 'settings';
+
 interface NavItem {
-  id: string;
+  id: SidebarRoute;
   label: string;
   icon: (props: SVGProps<SVGSVGElement>) => JSX.Element;
   badge?: string;
-  isActive?: boolean;
+}
+
+interface SidebarProps {
+  activeRoute: SidebarRoute;
+  onNavigate?: (route: SidebarRoute) => void;
+  onPostTask?: () => void;
 }
 
 const navItems: NavItem[] = [
-  { id: 'home', label: 'Home', icon: HomeIcon, isActive: true },
-  { id: 'tasks', label: 'Tasks', icon: ListIcon },
+  { id: 'discover', label: 'Discover', icon: HomeIcon },
+  { id: 'tasks', label: 'My tasks', icon: ListIcon },
   { id: 'messages', label: 'Messages', icon: ChatIcon, badge: '3' },
   { id: 'calendar', label: 'Calendar', icon: CalendarIcon },
   { id: 'settings', label: 'Settings', icon: SettingsIcon },
 ];
 
-const Sidebar: FC = () => {
+const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask }) => {
+  const handleNavigate = (route: SidebarRoute) => {
+    if (onNavigate) {
+      onNavigate(route);
+    }
+  };
+
   return (
     <nav className="sidebar" aria-label="Main navigation">
       <div className="sidebar-inner">
         <div className="sidebar-logo">
           <div className="sidebar-logo-mark">TP</div>
           <div className="sidebar-logo-text">
-            <span>Task Plaza</span>
-            <p>Community marketplace</p>
+            <span>Columbia</span>
+            <p>Help Out</p>
           </div>
         </div>
 
         <div className="sidebar-nav" role="list">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`sidebar-nav-item ${item.isActive ? 'active' : ''}`}
-              aria-current={item.isActive ? 'page' : undefined}
-            >
-              <item.icon className="sidebar-nav-icon" aria-hidden="true" />
-              <span className="sidebar-nav-label">{item.label}</span>
-              {item.badge && <span className="sidebar-nav-badge">{item.badge}</span>}
-            </button>
-          ))}
+          {navItems.map((item) => {
+            const isActive = item.id === activeRoute;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
+                aria-current={isActive ? 'page' : undefined}
+                onClick={() => handleNavigate(item.id)}
+              >
+                <item.icon className="sidebar-nav-icon" aria-hidden="true" />
+                <span className="sidebar-nav-label">{item.label}</span>
+                {item.badge && <span className="sidebar-nav-badge">{item.badge}</span>}
+              </button>
+            );
+          })}
         </div>
 
         <div className="sidebar-footer">
-          <button type="button" className="sidebar-cta">
+          <button type="button" className="sidebar-cta" onClick={onPostTask}>
             <span>Post task</span>
             <PlusIcon aria-hidden="true" />
           </button>
