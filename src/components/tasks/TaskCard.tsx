@@ -16,7 +16,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
     createdAt,
     isVerified,
     urgency,
-    isOnline,
+    // isOnline,
     tags,
   } = task;
 
@@ -52,11 +52,11 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
           </span>
         )}
 
-        {isOnline && (
-          <span className="task-tag online">
-            <span aria-hidden="true">🌐</span> Online
-          </span>
-        )}
+        {/*{isOnline && (*/}
+        {/*  <span className="task-tag online">*/}
+        {/*    <span aria-hidden="true">🌐</span> Online*/}
+        {/*  </span>*/}
+        {/*)}*/}
       </div>
 
       <div className="task-credits" aria-label={`${credits} credits reward`}>

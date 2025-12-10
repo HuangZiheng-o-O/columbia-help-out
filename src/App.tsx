@@ -111,8 +111,8 @@ function App() {
     } = {},
   ) => {
     const { mainId = 'main-content', mainClassName = 'main-content', mainLabel } = options;
-    return (
-      <>
+  return (
+    <>
         <a href={`#${mainId}`} className="skip-link">
           Skip to main content
         </a>
@@ -143,7 +143,7 @@ function App() {
             onPostTask={() => setView('create')}
           />
           <CreateTaskPage onCancel={handleBackToList} onCreated={handleBackToList} />
-        </div>
+      </div>
       </>
     );
   }

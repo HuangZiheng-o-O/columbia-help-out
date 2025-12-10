@@ -36,32 +36,32 @@ const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask }) => {
             <span>Columbia</span>
             <p>Help Out</p>
           </div>
-        </div>
+      </div>
 
         <div className="sidebar-nav" role="list">
           {navItems.map((item) => {
             const isActive = item.id === activeRoute;
             return (
-              <button
+        <button
                 key={item.id}
-                type="button"
+          type="button"
                 className={`sidebar-nav-item ${isActive ? 'active' : ''}`}
                 aria-current={isActive ? 'page' : undefined}
                 onClick={() => handleNavigate(item.id)}
-              >
+        >
                 <item.icon className="sidebar-nav-icon" aria-hidden="true" />
                 <span className="sidebar-nav-label">{item.label}</span>
                 {item.badge && <span className="sidebar-nav-badge">{item.badge}</span>}
-              </button>
+        </button>
             );
           })}
-        </div>
+      </div>
 
         <div className="sidebar-footer">
           <button type="button" className="sidebar-cta" onClick={onPostTask}>
             <span>Post task</span>
             <PlusIcon aria-hidden="true" />
-          </button>
+        </button>
 
           <div className="sidebar-user">
             <div className="sidebar-avatar">J</div>
