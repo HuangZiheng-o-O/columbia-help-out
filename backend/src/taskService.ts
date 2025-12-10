@@ -200,8 +200,13 @@ export const taskService = {
       patch.completed_at = input.completedAt ? new Date(input.completedAt) : new Date();
     }
     if (input.status === 'cancelled') {
-      patch.claimed_by_uid = null;
-      patch.claimed_at = null;
+      // If claimer cancels, keep claimed_by_uid for visibility in "My Claimed" tab.
+      // If publisher cancels, clear the claim so others can see it as withdrawn.
+      const isClaimerCancelling = existing.claimedByUid && existing.claimedByUid === actorUid;
+      if (!isClaimerCancelling) {
+        patch.claimed_by_uid = null;
+        patch.claimed_at = null;
+      }
     }
 
     const sqlSet = Object.keys(patch)

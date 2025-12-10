@@ -1,5 +1,6 @@
 import { useEffect, useState, type FC } from 'react';
 import type { Task } from '../../api/taskTypes';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface TaskSettlementPageProps {
   task: Task;
@@ -17,14 +18,11 @@ const TaskSettlementPage: FC<TaskSettlementPageProps> = ({ task, onBack, hideAsk
 
   const handleCopyEmail = async () => {
     const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
-    try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(fallback);
-      }
-    } catch (error) {
-      console.warn('Clipboard copy failed', error);
+    const ok = await copyTextToClipboard(fallback);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-    setCopied(true);
   };
 
   return (

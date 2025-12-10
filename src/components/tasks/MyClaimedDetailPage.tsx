@@ -1,6 +1,7 @@
 import { useEffect, useState, type FC } from 'react';
 import type { Task, TaskStatus } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface MyClaimedDetailPageProps {
   task: Task;
@@ -27,14 +28,11 @@ const MyClaimedDetailPage: FC<MyClaimedDetailPageProps> = ({
 
   const handleCopyEmail = async () => {
     const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
-    try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(fallback);
-      }
-    } catch (error) {
-      console.warn('Clipboard copy failed', error);
+    const ok = await copyTextToClipboard(fallback);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
-    setCopied(true);
   };
 
   const updateStatus = async (status: TaskStatus) => {

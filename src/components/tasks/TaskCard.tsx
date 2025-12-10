@@ -1,5 +1,7 @@
 import type { FC, SVGProps } from 'react';
+import { useState } from 'react';
 import type { Task } from '../../api/taskTypes';
+import { copyTextToClipboard } from '../../utils/clipboard';
 
 interface TaskCardProps {
   task: Task;
@@ -21,6 +23,16 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
   } = task;
 
   const createdLabel = formatCreatedAt(createdAt);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyEmail = async () => {
+    const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
+    const ok = await copyTextToClipboard(fallback);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <article className="task-card">
@@ -103,25 +115,33 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
         </div>
       )}
 
-      <div className="task-actions">
+      <div className="task-actions task-actions-right">
         {onSelectTask && (
           <button
             type="button"
-            className="btn-action btn-view"
+            className="task-action-btn task-action-secondary"
             onClick={() => onSelectTask(task)}
           >
             View details
           </button>
         )}
+        <div className="task-action-with-toast">
+          <button
+            type="button"
+            className="task-action-btn task-action-ghost"
+            onClick={handleCopyEmail}
+          >
+            Copy Email
+          </button>
+          {copied && (
+            <div className="copy-toast show" role="status">
+              Email copied
+            </div>
+          )}
+        </div>
         <button
           type="button"
-          className="btn-action btn-ask"
-        >
-          Copy Email
-        </button>
-        <button
-          type="button"
-          className="btn-action btn-claim"
+          className="task-action-btn task-action-primary"
         >
           Claim now
         </button>
