@@ -6,8 +6,10 @@ import Sidebar from './components/layout/Sidebar';
 import AppHeader from './components/layout/AppHeader';
 import SortBar from './components/layout/SortBar';
 import TaskGrid from './components/tasks/TaskGrid';
+import CreateTaskPage from './components/tasks/CreateTaskPage';
 
 function App() {
+  const [view, setView] = useState<'list' | 'create'>('list');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -49,7 +51,21 @@ function App() {
     };
   }, [searchText, sortBy]);
 
-  return (
+  return view === 'create' ? (
+    <>
+      <a href="#create-task-title" className="skip-link">
+        Skip to create task form
+      </a>
+
+      <div className="app-shell app-container">
+        <Sidebar />
+        <CreateTaskPage
+          onCancel={() => setView('list')}
+          onCreated={() => setView('list')}
+        />
+      </div>
+    </>
+  ) : (
     <>
       <a href="#main-content" className="skip-link">
         Skip to main content
@@ -63,7 +79,11 @@ function App() {
           className="main-content"
           aria-label="Task Plaza main content"
         >
-          <AppHeader searchText={searchText} onSearchChange={setSearchText} />
+          <AppHeader
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            onPostTask={() => setView('create')}
+          />
 
           <SortBar sortBy={sortBy} onSortChange={setSortBy} />
 

@@ -2,14 +2,15 @@ import type {
   Task,
   TaskListQuery,
   TaskListResult,
+  CreateTaskInput,
 } from './taskTypes';
 
 /** Task service interface: contract between frontend and backend. */
 export interface TaskService {
   listTasks(query: TaskListQuery): Promise<TaskListResult>;
   getTaskById(id: string): Promise<Task | null>;
+  createTask(input: CreateTaskInput): Promise<Task>;
   // Reserved for future features:
-  // createTask(input: CreateTaskInput): Promise<Task>;
   // claimTask(taskId: string): Promise<Task>;
   // completeTask(taskId: string): Promise<Task>;
 }
@@ -86,6 +87,29 @@ function createMockTaskService(): TaskService {
 
     async getTaskById(id: string): Promise<Task | null> {
       return mockTasks.find((t) => t.id === id) ?? null;
+    },
+
+    async createTask(input: CreateTaskInput): Promise<Task> {
+      const now = new Date();
+      const newTask: Task = {
+        id: `mock-${now.getTime()}`,
+        title: input.title,
+        shortDescription: input.shortDescription,
+        category: input.category,
+        credits: input.credits,
+        location: input.location,
+        durationMinutes: input.durationMinutes,
+        createdAt: now.toISOString(),
+        createdByUid: 'mock-user',
+        status: 'open',
+        isVerified: true,
+        isOnline: input.isOnline ?? false,
+        urgency: input.urgency,
+        tags: input.tags ?? [],
+      };
+
+      mockTasks.unshift(newTask);
+      return newTask;
     },
   };
 }

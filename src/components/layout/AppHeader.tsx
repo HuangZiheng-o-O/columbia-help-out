@@ -3,9 +3,14 @@ import type { FC, ChangeEvent } from 'react';
 interface AppHeaderProps {
   searchText: string;
   onSearchChange: (value: string) => void;
+  onPostTask?: () => void;
 }
 
-const AppHeader: FC<AppHeaderProps> = ({ searchText, onSearchChange }) => {
+const AppHeader: FC<AppHeaderProps> = ({
+  searchText,
+  onSearchChange,
+  onPostTask,
+}) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     onSearchChange(e.target.value);
   };
@@ -37,6 +42,7 @@ const AppHeader: FC<AppHeaderProps> = ({ searchText, onSearchChange }) => {
         type="button"
         className="btn-post"
         aria-label="Post a new task"
+        onClick={onPostTask}
       >
         Post Task
       </button>

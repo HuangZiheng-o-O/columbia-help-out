@@ -41,3 +41,16 @@ export interface TaskListResult {
   tasks: Task[];
   nextCursor?: string;
 }
+
+/** Payload for creating a new task. */
+export interface CreateTaskInput {
+  title: string;
+  shortDescription: string;
+  category: TaskCategory;
+  credits: number;
+  location: string;
+  durationMinutes: number;
+  isOnline?: boolean;
+  urgency?: TaskUrgency;
+  tags?: string[];
+}
