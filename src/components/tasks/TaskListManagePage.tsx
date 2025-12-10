@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Task, TaskStatus } from '../../api/taskTypes';
+import type { DetailSource } from '../../App';
 import { taskService } from '../../api/taskService';
 
 type Action = 'mark-completed' | 'withdraw';
 type TabKey = 'published' | 'claimed';
 
 interface TaskListManagePageProps {
-  onSelectTask?: (taskId: string, status: TaskStatus) => void;
+  onSelectTask?: (taskId: string, status: TaskStatus, source: DetailSource) => void;
 }
 
 const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
@@ -226,7 +227,7 @@ interface TaskListRowProps {
   task: Task;
   listType: TabKey;
   onAction: (listType: TabKey, taskId: string, action: Action) => void;
-  onSelectTask?: (taskId: string, status: TaskStatus) => void;
+  onSelectTask?: (taskId: string, status: TaskStatus, source: DetailSource) => void;
   actioningId: string | null;
 }
 
@@ -258,7 +259,13 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask, actioningId }: Ta
         <button
           type="button"
           className="btn-row btn-row-primary"
-          onClick={() => onSelectTask?.(task.id, task.status)}
+          onClick={() =>
+            onSelectTask?.(
+              task.id,
+              task.status,
+              listType === 'published' ? 'manage-published' : 'manage-claimed',
+            )
+          }
           disabled={actioningId === task.id}
         >
           View details

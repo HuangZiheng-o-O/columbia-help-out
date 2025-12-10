@@ -1,54 +1,24 @@
-import { useEffect, useState, type FC } from 'react';
+import { useState, type FC } from 'react';
 import type { Task, TaskStatus } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
 
-interface TaskDetailPageProps {
+interface MyPublishedDetailPageProps {
   task: Task;
   onBack: () => void;
-  hideAskFirst?: boolean;
-  hideClaim?: boolean;
-  mode?: 'discover' | 'manage';
   currentUid?: string;
 }
 
-const TaskDetailPage: FC<TaskDetailPageProps> = ({
+const MyPublishedDetailPage: FC<MyPublishedDetailPageProps> = ({
   task,
   onBack,
-  hideAskFirst = false,
-  hideClaim = false,
-  mode = 'discover',
   currentUid = 'mock-user-1',
 }) => {
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
-  const [copied, setCopied] = useState(false);
   const [isActioning, setIsActioning] = useState(false);
-  useEffect(() => {
-    if (!copied) return;
-    const timer = window.setTimeout(() => setCopied(false), 2000);
-    return () => window.clearTimeout(timer);
-  }, [copied]);
-
-  const showClaim = hideClaim !== true;
-
-  const handleCopyEmail = async () => {
-    const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
-    try {
-      if (navigator?.clipboard?.writeText) {
-        await navigator.clipboard.writeText(fallback);
-      }
-    } catch (error) {
-      console.warn('Clipboard copy failed', error);
-    }
-    setCopied(true);
-  };
-
-  // Manage-mode actions
   const isPublisher = task.createdByUid === currentUid;
   const disableWithdraw =
-    task.status === 'cancelled' ||
-    task.status === 'completed' ||
-    Boolean(isPublisher && task.claimedByUid);
+    task.status === 'cancelled' || task.status === 'completed' || (isPublisher && task.claimedByUid);
   const disableComplete = !isPublisher || (task.status !== 'open' && task.status !== 'claimed');
 
   const updateStatus = async (status: TaskStatus) => {
@@ -59,7 +29,7 @@ const TaskDetailPage: FC<TaskDetailPageProps> = ({
         status,
         completedAt: status === 'completed' ? new Date().toISOString() : undefined,
       });
-      onBack(); // return to list after action to refresh there
+      onBack();
     } catch (error) {
       console.error(error);
       alert('Action failed. Please try again.');
@@ -139,87 +109,45 @@ const TaskDetailPage: FC<TaskDetailPageProps> = ({
         </ul>
       </section>
 
-      <section className="task-detail-section" aria-labelledby="publisher-reputation-heading">
-        <h2 id="publisher-reputation-heading" className="task-section-title">
-          Publisher Reputation
+      <section className="task-detail-section task-people-section" aria-labelledby="task-people-heading">
+        <h2 id="task-people-heading" className="visually-hidden">
+          People related to this task
         </h2>
-        <dl className="publisher-metrics">
-          <div className="publisher-metric">
-            <dt>Tasks completed</dt>
-            <dd>23</dd>
+        <dl className="task-people-info">
+          <div className="task-people-row">
+            <dt>Published by</dt>
+            <dd>You</dd>
           </div>
-          <div className="publisher-metric">
-            <dt>Cancellation rate</dt>
-            <dd>5%</dd>
-          </div>
-          <div className="publisher-metric">
-            <dt>Verification</dt>
-            <dd>
-              <span className="publisher-tag-verified">
-                <span className="publisher-tag-dot" aria-hidden="true"></span>
-                Campus email verified
-              </span>
-            </dd>
+          <div className="task-people-row">
+            <dt>Claimed by</dt>
+            <dd>{task.claimedByUid ?? 'Not claimed yet'}</dd>
           </div>
         </dl>
       </section>
 
-      <section className="task-detail-section task-detail-section--safety">
-        <div className="task-safety-banner" role="note" aria-label="Safety tips">
-          <span className="task-safety-icon" aria-hidden="true">
-            ⚠️
-          </span>
-          <p className="task-safety-text">
-            For in-person meetings, meet in public places; do not exchange valuables.
-          </p>
-        </div>
-      </section>
-
       <footer className="task-detail-footer">
-        {mode === 'manage' ? (
-          <>
-            <button
-              type="button"
-              className="btn-row btn-row-success"
-              disabled={disableComplete || isActioning}
-              onClick={() => updateStatus('completed')}
-            >
-              Mark Completed
-            </button>
-            <button
-              type="button"
-              className="btn-row btn-row-warning"
-              disabled={disableWithdraw || isActioning}
-              onClick={() => updateStatus('cancelled')}
-            >
-              Withdraw
-            </button>
-          </>
-        ) : (
-          <>
-            {!hideAskFirst && (
-              <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
-                Copy Email
-              </button>
-            )}
-            {showClaim && (
-              <button type="button" className="btn-action btn-claim">
-                Claim Now
-              </button>
-            )}
-            {copied && (
-              <div className="copy-toast" role="status">
-                Publisher email copied
-              </div>
-            )}
-          </>
-        )}
+        <button
+          type="button"
+          className="btn-row btn-row-success"
+          disabled={disableComplete || isActioning}
+          onClick={() => updateStatus('completed')}
+        >
+          Mark Completed
+        </button>
+        <button
+          type="button"
+          className="btn-row btn-row-warning"
+          disabled={disableWithdraw || isActioning}
+          onClick={() => updateStatus('cancelled')}
+        >
+          Withdraw
+        </button>
       </footer>
     </article>
   );
 };
 
-export default TaskDetailPage;
+export default MyPublishedDetailPage;
 
 function buildDetailList(task: Task): string[] {
   const details: string[] = [];

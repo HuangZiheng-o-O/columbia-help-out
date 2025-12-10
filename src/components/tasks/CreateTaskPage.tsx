@@ -17,6 +17,8 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
   onCancel,
   onCreated,
 }) => {
+  // TODO: replace with real user balance from auth/profile
+  const availableCredits = 80;
   const [title, setTitle] = useState('');
   const [credits, setCredits] = useState('');
   const [description, setDescription] = useState('');
@@ -49,6 +51,8 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
       errors.credits = 'Please enter a valid number.';
     } else if (creditsNumber <= 0) {
       errors.credits = 'Credits must be greater than zero.';
+    } else if (creditsNumber > availableCredits) {
+      errors.credits = `Not enough credits. Available: ${availableCredits}.`;
     }
 
     if (!description.trim()) {

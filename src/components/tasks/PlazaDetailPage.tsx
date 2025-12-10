@@ -1,35 +1,23 @@
 import { useEffect, useState, type FC } from 'react';
-import type { Task, TaskStatus } from '../../api/taskTypes';
+import type { Task } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
 
-interface TaskDetailPageProps {
+interface PlazaDetailPageProps {
   task: Task;
   onBack: () => void;
-  hideAskFirst?: boolean;
-  hideClaim?: boolean;
-  mode?: 'discover' | 'manage';
   currentUid?: string;
 }
 
-const TaskDetailPage: FC<TaskDetailPageProps> = ({
-  task,
-  onBack,
-  hideAskFirst = false,
-  hideClaim = false,
-  mode = 'discover',
-  currentUid = 'mock-user-1',
-}) => {
+const PlazaDetailPage: FC<PlazaDetailPageProps> = ({ task, onBack }) => {
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
   const [copied, setCopied] = useState(false);
-  const [isActioning, setIsActioning] = useState(false);
+
   useEffect(() => {
     if (!copied) return;
     const timer = window.setTimeout(() => setCopied(false), 2000);
     return () => window.clearTimeout(timer);
   }, [copied]);
-
-  const showClaim = hideClaim !== true;
 
   const handleCopyEmail = async () => {
     const fallback = task.publisherEmail ?? `${task.createdByUid}@columbia.edu`;
@@ -41,31 +29,6 @@ const TaskDetailPage: FC<TaskDetailPageProps> = ({
       console.warn('Clipboard copy failed', error);
     }
     setCopied(true);
-  };
-
-  // Manage-mode actions
-  const isPublisher = task.createdByUid === currentUid;
-  const disableWithdraw =
-    task.status === 'cancelled' ||
-    task.status === 'completed' ||
-    Boolean(isPublisher && task.claimedByUid);
-  const disableComplete = !isPublisher || (task.status !== 'open' && task.status !== 'claimed');
-
-  const updateStatus = async (status: TaskStatus) => {
-    try {
-      setIsActioning(true);
-      await taskService.updateTaskStatus({
-        taskId: task.id,
-        status,
-        completedAt: status === 'completed' ? new Date().toISOString() : undefined,
-      });
-      onBack(); // return to list after action to refresh there
-    } catch (error) {
-      console.error(error);
-      alert('Action failed. Please try again.');
-    } finally {
-      setIsActioning(false);
-    }
   };
 
   return (
@@ -176,50 +139,23 @@ const TaskDetailPage: FC<TaskDetailPageProps> = ({
       </section>
 
       <footer className="task-detail-footer">
-        {mode === 'manage' ? (
-          <>
-            <button
-              type="button"
-              className="btn-row btn-row-success"
-              disabled={disableComplete || isActioning}
-              onClick={() => updateStatus('completed')}
-            >
-              Mark Completed
-            </button>
-            <button
-              type="button"
-              className="btn-row btn-row-warning"
-              disabled={disableWithdraw || isActioning}
-              onClick={() => updateStatus('cancelled')}
-            >
-              Withdraw
-            </button>
-          </>
-        ) : (
-          <>
-            {!hideAskFirst && (
-              <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
-                Copy Email
-              </button>
-            )}
-            {showClaim && (
-              <button type="button" className="btn-action btn-claim">
-                Claim Now
-              </button>
-            )}
-            {copied && (
-              <div className="copy-toast" role="status">
-                Publisher email copied
-              </div>
-            )}
-          </>
+        <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
+          Copy Email
+        </button>
+        <button type="button" className="btn-action btn-claim" onClick={() => alert('Claim placeholder')}>
+          Claim Now
+        </button>
+        {copied && (
+          <div className="copy-toast" role="status">
+            Publisher email copied
+          </div>
         )}
       </footer>
     </article>
   );
 };
 
-export default TaskDetailPage;
+export default PlazaDetailPage;
 
 function buildDetailList(task: Task): string[] {
   const details: string[] = [];

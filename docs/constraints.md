@@ -9,11 +9,13 @@
 - My Claimed Tasks: user cannot mark completed (publisher-only). Withdraw is allowed unless task is already completed/cancelled.
 - My Published Tasks: if task is claimed by someone else, publisher cannot withdraw; show a prompt and block the action. Withdraw/Complete buttons disable when already completed/cancelled.
 - Disabled action buttons must render gray with reduced opacity and a line-through.
+- Claim/complete flow: claimer may assert “Mark as Done”, but the publisher must finalize by “Mark Completed” in My Published Tasks. Claimer cannot close the task.
 
 ## Detail Views (Discover vs. Manage)
-- Discover (home) detail view shows “Copy Email” with clipboard copy + toast.
-- Task List / Manage detail/settlement views hide “Copy Email”.
+- Discover (home) detail view shows “Ask First/Copy Email” with clipboard copy + toast.
+- Task List / Manage detail/settlement views hide “Ask First/Copy Email”; Manage detail hides “Claim”.
 - View detail from Manage can route to settlement when status is completed; otherwise to detail.
+- Manage detail back button returns to Task List (not Discover). If the task is missing locally, fetch by id before rendering detail.
 
 ## UI/UX Layout & Scroll
 - Sidebar is fixed on the left; on narrow screens it collapses to icons only. Only the main content scrolls; `html/body` overflow is hidden to prevent sidebar scroll.

@@ -7,13 +7,16 @@ import AppHeader from './components/layout/AppHeader';
 import SortBar from './components/layout/SortBar';
 import TaskGrid from './components/tasks/TaskGrid';
 import CreateTaskPage from './components/tasks/CreateTaskPage';
-import TaskDetailPage from './components/tasks/TaskDetailPage';
+import PlazaDetailPage from './components/tasks/PlazaDetailPage';
+import MyPublishedDetailPage from './components/tasks/MyPublishedDetailPage';
+import MyClaimedDetailPage from './components/tasks/MyClaimedDetailPage';
 import TaskSettlementPage from './components/tasks/TaskSettlementPage';
 import TaskListManagePage from './components/tasks/TaskListManagePage';
 
 type AppView = 'list' | 'create' | 'detail' | 'settlement' | 'manage';
 type ManageStatus = TaskStatus;
-type DetailSource = 'discover' | 'manage';
+export type DetailSource = 'discover' | 'manage-published' | 'manage-claimed';
+const CURRENT_USER_UID = 'mock-user-1';
 
 function App() {
   const [view, setView] = useState<AppView>('list');
@@ -74,24 +77,28 @@ function App() {
     setView('list');
   };
 
-  const handleSelectTaskFromManage = (taskId: string, status: ManageStatus) => {
-    const fallback = tasks[0];
-    const target = tasks.find((t) => t.id === taskId) ?? fallback;
-    if (!target) {
-      return;
+  const handleSelectTaskFromManage = async (taskId: string, status: ManageStatus, source: DetailSource) => {
+    try {
+      let target = tasks.find((t) => t.id === taskId) ?? null;
+      if (!target) {
+        target = await taskService.getTaskById(taskId);
+      }
+      if (!target) return;
+      const destination: AppView = status === 'completed' ? 'settlement' : 'detail';
+      setDetailSource(source);
+      handleSelectTask(target, destination);
+    } catch (error) {
+      console.error('Failed to load task for manage detail', error);
     }
-    const destination: AppView = status === 'completed' ? 'settlement' : 'detail';
-    setDetailSource('manage');
-    handleSelectTask(target, destination);
   };
 
   useEffect(() => {
-    if (view === 'manage') {
+    if (view === 'manage' || detailSource.startsWith('manage')) {
       setActiveRoute('tasks');
     } else {
       setActiveRoute('discover');
     }
-  }, [view]);
+  }, [view, detailSource]);
 
   const handleSidebarNavigate = (route: SidebarRoute) => {
     if (route === 'discover') {
@@ -154,37 +161,48 @@ function App() {
   }
 
   if (view === 'detail' && selectedTask) {
+    const backToManage = () => setView('manage');
+    const backTo = detailSource.startsWith('manage') ? backToManage : handleBackToList;
+    if (detailSource === 'discover') {
+      return renderShell(
+        <PlazaDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
+        { mainClassName: 'task-detail-page', mainLabel: 'Task detail view' },
+      );
+    }
+    if (detailSource === 'manage-published') {
+      return renderShell(
+        <MyPublishedDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
+        { mainClassName: 'task-detail-page', mainLabel: 'My published task detail' },
+      );
+    }
     return renderShell(
-      <TaskDetailPage
-        task={selectedTask}
-        onBack={handleBackToList}
-        hideAskFirst={detailSource === 'manage'}
-      />,
-      {
-      mainClassName: 'task-detail-page',
-      mainLabel: 'Task detail view',
-    },
+      <MyClaimedDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
+      { mainClassName: 'task-detail-page', mainLabel: 'My claimed task detail' },
     );
   }
 
   if (view === 'settlement' && selectedTask) {
+    const backToManage = () => setView('manage');
+    const backTo = detailSource.startsWith('manage') ? backToManage : handleBackToList;
     return renderShell(
       <TaskSettlementPage
         task={selectedTask}
-        onBack={handleBackToList}
-        hideAskFirst={detailSource === 'manage'}
+        onBack={backTo}
+        hideAskFirst
       />,
-      {
-      mainClassName: 'task-detail-page',
-      mainLabel: 'Task settlement view',
-    },
+      { mainClassName: 'task-detail-page', mainLabel: 'Task settlement view' },
     );
   }
 
   if (view === 'manage') {
-    return renderShell(<TaskListManagePage onSelectTask={handleSelectTaskFromManage} />, {
+    return renderShell(
+      <TaskListManagePage
+        onSelectTask={(id, status, source) => handleSelectTaskFromManage(id, status, source)}
+      />,
+      {
       mainLabel: 'Task management',
-    });
+      },
+    );
   }
 
   return renderShell(
