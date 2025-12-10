@@ -29,11 +29,11 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const tagOptions: { value: TaskCategory; label: string }[] = [
-    { value: 'academic', label: 'Academic' },
-    { value: 'daily', label: 'Daily' },
-    { value: 'campus', label: 'Campus' },
-    { value: 'other', label: 'Other' },
+  const tagOptions: { value: TaskCategory; label: string; icon: string }[] = [
+    { value: 'academic', label: 'Academic', icon: '📚' },
+    { value: 'daily', label: 'Daily', icon: '☀️' },
+    { value: 'campus', label: 'Campus', icon: '🏫' },
+    { value: 'other', label: 'Other', icon: '🏷️' },
   ];
 
   function validate(): boolean {
@@ -126,12 +126,27 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
     <main className="create-task-page" aria-labelledby="create-task-title">
       <section className="create-task-card">
         <header className="create-task-header">
-          <h1 id="create-task-title" className="create-task-title">
-            Create Task
-          </h1>
-          <p className="create-task-subtitle">
-            Share what you need help with. Clear tasks receive responses faster.
-          </p>
+          <button type="button" className="btn-back" onClick={onCancel}>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+          <div>
+            <h1 id="create-task-title" className="create-task-title">
+              Post a New Task
+            </h1>
+            <p className="create-task-subtitle">
+              Get help from the community by sharing your task details.
+            </p>
+          </div>
         </header>
 
         <form
@@ -150,221 +165,177 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
             </div>
           )}
 
-          <div className="create-task-row">
-            <div className="form-field">
-              <label className="form-label" htmlFor="task-title">
-                Task Title{' '}
-                <span aria-hidden="true" className="required-indicator">
-                  *
-                </span>
-                <span className="sr-only">required</span>
-              </label>
-              <input
-                id="task-title"
-                name="task-title"
-                type="text"
-                className="form-input"
-                autoComplete="off"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                aria-invalid={fieldErrors.title ? 'true' : 'false'}
-                aria-describedby={
-                  fieldErrors.title ? 'task-title-error' : undefined
-                }
-              />
-              {fieldErrors.title && (
-                <p id="task-title-error" className="field-error" role="alert">
-                  {fieldErrors.title}
-                </p>
-              )}
-            </div>
-
-            <div className="form-field form-field--compact">
-              <label className="form-label" htmlFor="task-credits">
-                Credit Reward{' '}
-                <span aria-hidden="true" className="required-indicator">
-                  *
-                </span>
-                <span className="sr-only">required</span>
-              </label>
-              <input
-                id="task-credits"
-                name="task-credits"
-                type="number"
-                min={1}
-                className="form-input"
-                inputMode="numeric"
-                value={credits}
-                onChange={(e) => setCredits(e.target.value)}
-                aria-invalid={fieldErrors.credits ? 'true' : 'false'}
-                aria-describedby={
-                  fieldErrors.credits ? 'task-credits-error' : undefined
-                }
-              />
-              {fieldErrors.credits && (
-                <p
-                  id="task-credits-error"
-                  className="field-error"
-                  role="alert"
-                >
-                  {fieldErrors.credits}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="form-field">
-            <label className="form-label" htmlFor="task-description">
-              Task Description{' '}
-              <span aria-hidden="true" className="required-indicator">
-                *
-              </span>
-              <span className="sr-only">required</span>
-            </label>
-            <textarea
-              id="task-description"
-              name="task-description"
-              className="form-textarea"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              aria-invalid={fieldErrors.description ? 'true' : 'false'}
-              aria-describedby={
-                fieldErrors.description ? 'task-description-error' : undefined
-              }
-            />
-            <p className="field-hint">
-              Be specific about what you need, where you are, and any timing
-              details.
-            </p>
-            {fieldErrors.description && (
-              <p
-                id="task-description-error"
-                className="field-error"
-                role="alert"
-              >
-                {fieldErrors.description}
-              </p>
-            )}
-          </div>
-
-          <div className="create-task-row">
-            <div className="form-field form-field--compact">
-              <label className="form-label" htmlFor="task-duration">
-                Estimate Time (minutes){' '}
-                <span aria-hidden="true" className="required-indicator">
-                  *
-                </span>
-                <span className="sr-only">required</span>
-              </label>
-              <input
-                id="task-duration"
-                name="task-duration"
-                type="number"
-                min={1}
-                className="form-input"
-                inputMode="numeric"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                aria-invalid={fieldErrors.duration ? 'true' : 'false'}
-                aria-describedby={
-                  fieldErrors.duration ? 'task-duration-error' : undefined
-                }
-              />
-              {fieldErrors.duration && (
-                <p
-                  id="task-duration-error"
-                  className="field-error"
-                  role="alert"
-                >
-                  {fieldErrors.duration}
-                </p>
-              )}
-            </div>
-
-            <div className="form-field">
-              <label className="form-label" htmlFor="task-location">
-                Location{' '}
-                <span aria-hidden="true" className="required-indicator">
-                  *
-                </span>
-                <span className="sr-only">required</span>
-              </label>
-              <input
-                id="task-location"
-                name="task-location"
-                type="text"
-                className="form-input"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                aria-invalid={fieldErrors.location ? 'true' : 'false'}
-                aria-describedby={
-                  fieldErrors.location ? 'task-location-error' : undefined
-                }
-              />
-              {fieldErrors.location && (
-                <p
-                  id="task-location-error"
-                  className="field-error"
-                  role="alert"
-                >
-                  {fieldErrors.location}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="create-task-row create-task-row--meta">
-            <div className="form-field checkbox-field">
-              <label className="checkbox-label">
+          <div className="form-section">
+            {/*<h2 className="form-section-title">Basic Info</h2>*/}
+            <div className="create-task-row">
+              <div className="form-field">
+                <label className="form-label" htmlFor="task-title">
+                  Task Title <span className="required-indicator">*</span>
+                </label>
                 <input
-                  type="checkbox"
-                  className="checkbox-input"
-                  checked={isOnline}
-                  onChange={(e) => setIsOnline(e.target.checked)}
+                  id="task-title"
+                  name="task-title"
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. Help me move a sofa"
+                  autoComplete="off"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  aria-invalid={fieldErrors.title ? 'true' : 'false'}
                 />
-                <span>Online task</span>
-              </label>
+                {fieldErrors.title && (
+                  <p className="field-error" role="alert">
+                    {fieldErrors.title}
+                  </p>
+                )}
+              </div>
+
+              <div className="form-field form-field--compact">
+                <label className="form-label" htmlFor="task-credits">
+                  Credits <span className="required-indicator">*</span>
+                </label>
+                <div className="input-with-icon">
+                  <span className="input-icon">💎</span>
+                  <input
+                    id="task-credits"
+                    name="task-credits"
+                    type="number"
+                    min={1}
+                    className="form-input has-icon"
+                    placeholder="30"
+                    inputMode="numeric"
+                    value={credits}
+                    onChange={(e) => setCredits(e.target.value)}
+                    aria-invalid={fieldErrors.credits ? 'true' : 'false'}
+                  />
+                </div>
+                {fieldErrors.credits && (
+                  <p className="field-error" role="alert">
+                    {fieldErrors.credits}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="form-field urgency-field">
-              <label className="form-label" htmlFor="task-urgency">
-                Urgency
+            <div className="form-field">
+              <label className="form-label" htmlFor="task-description">
+                Description <span className="required-indicator">*</span>
               </label>
-              <select
-                id="task-urgency"
-                name="task-urgency"
-                className="form-select"
-                value={urgency}
-                onChange={(e) => setUrgency(e.target.value as TaskUrgency)}
-              >
-                <option value="normal">Normal</option>
-                <option value="flexible">Flexible</option>
-                <option value="urgent">Urgent</option>
-              </select>
+              <textarea
+                id="task-description"
+                name="task-description"
+                className="form-textarea"
+                rows={4}
+                placeholder="Describe what you need help with..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                aria-invalid={fieldErrors.description ? 'true' : 'false'}
+              />
+              {fieldErrors.description && (
+                <p className="field-error" role="alert">
+                  {fieldErrors.description}
+                </p>
+              )}
             </div>
           </div>
 
-          <fieldset className="form-field">
-            <legend className="form-label">
-              Task Tag{' '}
-              <span aria-hidden="true" className="required-indicator">
-                *
-              </span>
-              <span className="sr-only">required</span>
-            </legend>
-            <p className="field-hint">
-              Choose the main category so others can quickly understand your
-              task.
-            </p>
+          <div className="form-section">
+            {/*<h2 className="form-section-title">Logistics</h2>*/}
+            <div className="create-task-row">
+              <div className="form-field form-field--compact">
+                <label className="form-label" htmlFor="task-duration">
+                  Duration (min) <span className="required-indicator">*</span>
+                </label>
+                <div className="input-with-icon">
+                  <span className="input-icon">⏱️</span>
+                  <input
+                    id="task-duration"
+                    name="task-duration"
+                    type="number"
+                    min={1}
+                    className="form-input has-icon"
+                    placeholder="30"
+                    inputMode="numeric"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    aria-invalid={fieldErrors.duration ? 'true' : 'false'}
+                  />
+                </div>
+                {fieldErrors.duration && (
+                  <p className="field-error" role="alert">
+                    {fieldErrors.duration}
+                  </p>
+                )}
+              </div>
 
+              <div className="form-field">
+                <label className="form-label" htmlFor="task-location">
+                  Location <span className="required-indicator">*</span>
+                </label>
+                <div className="input-with-icon">
+                  <span className="input-icon">📍</span>
+                  <input
+                    id="task-location"
+                    name="task-location"
+                    type="text"
+                    className="form-input has-icon"
+                    placeholder="e.g. Butler Library"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    aria-invalid={fieldErrors.location ? 'true' : 'false'}
+                  />
+                </div>
+                {fieldErrors.location && (
+                  <p className="field-error" role="alert">
+                    {fieldErrors.location}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="create-task-row create-task-row--meta">
+              <div className="form-field checkbox-field">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    className="checkbox-input"
+                    checked={isOnline}
+                    onChange={(e) => setIsOnline(e.target.checked)}
+                  />
+                  <span>This is an online task</span>
+                </label>
+              </div>
+
+              <div className="form-field urgency-field">
+                <label className="form-label" htmlFor="task-urgency">
+                  Urgency
+                </label>
+                <div className="select-wrapper">
+                  <select
+                    id="task-urgency"
+                    name="task-urgency"
+                    className="form-select"
+                    value={urgency}
+                    onChange={(e) => setUrgency(e.target.value as TaskUrgency)}
+                  >
+                    <option value="normal">📅 Normal</option>
+                    <option value="flexible">🕐 Flexible</option>
+                    <option value="urgent">⚡ Urgent</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h2 className="form-section-title">Category</h2>
             <div className="tag-pill-group" role="radiogroup">
               {tagOptions.map((option) => {
                 const isActive = category === option.value;
                 return (
                   <label
                     key={option.value}
-                    className={`tag-pill ${isActive ? 'tag-pill--active' : ''}`}
+                    className={`tag-card ${isActive ? 'tag-card--active' : ''}`}
                   >
                     <input
                       type="radio"
@@ -374,33 +345,33 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
                       onChange={() => setCategory(option.value)}
                       className="sr-only"
                     />
-                    <span className="tag-pill-label">{option.label}</span>
+                    <span className="tag-card-icon">{option.icon}</span>
+                    <span className="tag-card-label">{option.label}</span>
                   </label>
                 );
               })}
             </div>
-
             {fieldErrors.category && (
-              <p id="task-category-error" className="field-error" role="alert">
+              <p className="field-error" role="alert">
                 {fieldErrors.category}
               </p>
             )}
-          </fieldset>
+          </div>
 
           <div className="create-task-footer">
             <button
               type="button"
-              className="btn-outline"
+              className="btn-text"
               onClick={onCancel}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="btn-primary btn-large"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Publishing…' : 'Publish'}
+              {isSubmitting ? 'Publishing...' : 'Publish Task'}
             </button>
           </div>
         </form>

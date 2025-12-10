@@ -170,6 +170,8 @@ input, textarea, select { font-family: inherit; }
     padding: 20px 0;
     gap: var(--spacing-sm);
     flex-shrink: 0;
+    /* 修正：让侧栏占满高度，避免滚动时断开 */
+    min-height: 100vh; 
 }
 
 .sidebar-icon {
@@ -600,20 +602,20 @@ input, textarea, select { font-family: inherit; }
 
 
 /* ===========================================
-   15. Responsive
+   15. Responsive (移除导致布局断裂的逻辑)
    =========================================== */
 @media (max-width: 768px) {
     .sidebar { width: 56px; }
 
-    .header {
+    /* .header {
         padding: var(--spacing-md) var(--spacing-lg);
         flex-wrap: wrap;
-    }
+    } */
 
     .search-box {
-        order: 3;
-        max-width: 100%;
-        width: 100%;
+        /* order: 3; */
+        /* max-width: 100%; */
+        /* width: 100%; */
     }
 
     .sort-bar {
@@ -625,3 +627,4 @@ input, textarea, select { font-family: inherit; }
 
     .task-grid { grid-template-columns: 1fr; }
 }
+
