@@ -12,6 +12,7 @@ body {
     'Segoe UI', sans-serif;
   background-color: var(--color-bg-page);
   color: var(--color-text-default);
+  overflow: hidden; /* lock page scroll; scroll only inside main area */
 }
 
 #root {
@@ -29,6 +30,7 @@ body {
   margin: 0;
   display: flex;
   min-height: 100vh;
+   height: 100vh; /* full viewport; internal panes handle scroll */
   flex-wrap: nowrap; /* prevent sidebar + main wrapping */
   align-items: stretch;
 }
@@ -38,6 +40,21 @@ body {
 .main-content {
   width: 100%;
   min-width: 0; /* allow flex shrink */
+}
+
+/* Constrain scroll to main content; sidebar stays fixed height */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Pages that replace main-content class still need overflow handling */
+.task-detail-page,
+.task-list-page,
+.create-task-page {
+  overflow-y: auto;
 }
 
 /* reset for the icon buttons inside the sidebar container */

@@ -74,10 +74,17 @@ export const taskService = {
     const params: any[] = [];
     const where: string[] = [];
 
-    if (scope === 'published' && ownerUid) where.push('t.uid = ?'), params.push(ownerUid);
-    if (scope === 'claimed' && claimedByUid) where.push('t.claimed_by_uid = ?'), params.push(claimedByUid);
-    if (ownerUid && !scope) where.push('t.uid = ?'), params.push(ownerUid);
-    if (claimedByUid && !scope) where.push('t.claimed_by_uid = ?'), params.push(claimedByUid);
+    // Scope filters (strict: if scope specified but missing uid, return empty result)
+    if (scope === 'published') {
+      if (!ownerUid) return { tasks: [], nextCursor: undefined };
+      where.push('t.uid = ?'), params.push(ownerUid);
+    } else if (scope === 'claimed') {
+      if (!claimedByUid) return { tasks: [], nextCursor: undefined };
+      where.push('t.claimed_by_uid = ?'), params.push(claimedByUid);
+    } else {
+      if (ownerUid) where.push('t.uid = ?'), params.push(ownerUid);
+      if (claimedByUid) where.push('t.claimed_by_uid = ?'), params.push(claimedByUid);
+    }
     if (status) where.push('t.status = ?'), params.push(status);
 
     if (searchText) {
