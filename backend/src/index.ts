@@ -1,7 +1,13 @@
 import express, { type Request, type Response } from 'express';
+import cors from 'cors';
 import taskRoutes from './routes/taskRoutes';
 
 const app = express();
+app.use(
+  cors({
+    origin: '*', // dev-friendly; tighten in production
+  }),
+);
 app.use(express.json());
 
 app.use('/tasks', taskRoutes);
