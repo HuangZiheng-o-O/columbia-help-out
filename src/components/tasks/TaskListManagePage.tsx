@@ -17,6 +17,7 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
   const [loadingClaimed, setLoadingClaimed] = useState(false);
   const [errorPublished, setErrorPublished] = useState<string | null>(null);
   const [errorClaimed, setErrorClaimed] = useState<string | null>(null);
+  const [actioningId, setActioningId] = useState<string | null>(null);
 
   const currentUserUid = 'mock-user-1';
 
@@ -38,7 +39,9 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
       setLoadingPublished(true);
       setErrorPublished(null);
       const res = await taskService.listTasks({ scope: 'published', ownerUid: currentUserUid });
-      setPublishedTasks(res.tasks);
+      // double-guard on client to avoid mixed data
+      const filtered = res.tasks.filter((t) => t.createdByUid === currentUserUid);
+      setPublishedTasks(filtered);
     } catch (error) {
       console.error(error);
       setErrorPublished('Failed to load your published tasks.');
@@ -52,7 +55,9 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
       setLoadingClaimed(true);
       setErrorClaimed(null);
       const res = await taskService.listTasks({ scope: 'claimed', claimedByUid: currentUserUid });
-      setClaimedTasks(res.tasks);
+      // double-guard on client to avoid mixed data
+      const filtered = res.tasks.filter((t) => t.claimedByUid === currentUserUid);
+      setClaimedTasks(filtered);
     } catch (error) {
       console.error(error);
       setErrorClaimed('Failed to load your claimed tasks.');
@@ -63,7 +68,18 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
 
   const handleAction = async (listType: TabKey, taskId: string, action: Action) => {
     const status: TaskStatus = action === 'mark-completed' ? 'completed' : 'cancelled';
+    const task =
+      listType === 'published'
+        ? publishedTasks.find((t) => t.id === taskId)
+        : claimedTasks.find((t) => t.id === taskId);
+
+    if (listType === 'published' && task?.claimedByUid && action === 'withdraw') {
+      alert('This task has been claimed; publisher cannot withdraw. Please mark as completed instead.');
+      return;
+    }
+
     try {
+      setActioningId(taskId);
       await taskService.updateTaskStatus({
         taskId,
         status,
@@ -76,7 +92,9 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
       }
     } catch (error) {
       console.error(error);
-      // TODO: surface toast/error UI
+      alert('Action failed. Please try again.');
+    } finally {
+      setActioningId(null);
     }
   };
 
@@ -145,8 +163,8 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
           })}
         </div>
 
-        {(['published', 'claimed'] as TabKey[]).map((tab) => {
-          const isActive = tab === activeTab;
+        {(() => {
+          const tab = activeTab;
           const list = tab === 'published' ? publishedTasks : claimedTasks;
           const isLoading = tab === 'published' ? loadingPublished : loadingClaimed;
           const errorText = tab === 'published' ? errorPublished : errorClaimed;
@@ -157,12 +175,10 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
 
           return (
             <section
-              key={tab}
               id={`panel-${tab}`}
               className="task-panel"
               role="tabpanel"
               aria-labelledby={`tab-${tab}`}
-              hidden={!isActive}
             >
               <h2 className="visually-hidden">{tabLabels[tab]}</h2>
 
@@ -187,6 +203,7 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
                       listType={tab}
                       onAction={handleAction}
                       onSelectTask={onSelectTask}
+                      actioningId={actioningId}
                     />
                   ))}
                 </ul>
@@ -199,7 +216,7 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
               )}
             </section>
           );
-        })}
+        })()}
       </section>
     </div>
   );
@@ -210,16 +227,18 @@ interface TaskListRowProps {
   listType: TabKey;
   onAction: (listType: TabKey, taskId: string, action: Action) => void;
   onSelectTask?: (taskId: string, status: TaskStatus) => void;
+  actioningId: string | null;
 }
 
-const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProps) => {
+const TaskListRow = ({ task, listType, onAction, onSelectTask, actioningId }: TaskListRowProps) => {
   const statusUi = mapStatusToUi(task.status);
-  const disableWithdraw = task.status === 'cancelled';
-  const disableComplete = task.status !== 'open' && task.status !== 'claimed';
+  const disableWithdraw = task.status === 'cancelled' || task.status === 'completed';
   const meta =
     listType === 'published'
       ? `Posted by you${task.claimedByUid ? ' · Claimed' : ''}`
       : 'You claimed this task';
+  const disableComplete =
+    listType === 'claimed' || (task.status !== 'open' && task.status !== 'claimed');
 
   return (
     <li
@@ -240,6 +259,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
           type="button"
           className="btn-row btn-row-primary"
           onClick={() => onSelectTask?.(task.id, task.status)}
+          disabled={actioningId === task.id}
         >
           View details
         </button>
@@ -248,7 +268,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
           className="btn-row btn-row-success"
           data-action="mark-completed"
           aria-label={`Mark task “${task.title}” as completed`}
-          disabled={disableComplete}
+          disabled={disableComplete || actioningId === task.id}
           onClick={() => onAction(listType, task.id, 'mark-completed')}
         >
           Mark Completed
@@ -258,7 +278,7 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask }: TaskListRowProp
           className="btn-row btn-row-warning"
           data-action="withdraw"
           aria-label={`Withdraw task “${task.title}”`}
-          disabled={disableWithdraw}
+          disabled={disableWithdraw || actioningId === task.id}
           onClick={() => onAction(listType, task.id, 'withdraw')}
         >
           Withdraw

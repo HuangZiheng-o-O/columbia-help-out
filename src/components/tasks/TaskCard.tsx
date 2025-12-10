@@ -48,7 +48,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onSelectTask }) => {
         {isVerified && (
           <span className="task-tag verified">
             <span className="sr-only">Email verified task</span>
-            <VerifiedIcon aria-hidden="true" /> Email verified
+            <VerifiedIcon aria-hidden="true" /> Verified
           </span>
         )}
 

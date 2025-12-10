@@ -13,11 +13,13 @@ import TaskListManagePage from './components/tasks/TaskListManagePage';
 
 type AppView = 'list' | 'create' | 'detail' | 'settlement' | 'manage';
 type ManageStatus = TaskStatus;
+type DetailSource = 'discover' | 'manage';
 
 function App() {
   const [view, setView] = useState<AppView>('list');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('discover');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [detailSource, setDetailSource] = useState<DetailSource>('discover');
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -61,12 +63,14 @@ function App() {
   }, [searchText, sortBy]);
 
   const handleSelectTask = (task: Task, nextView: AppView = 'detail') => {
+    setDetailSource('discover');
     setSelectedTask(task);
     setView(nextView);
   };
 
   const handleBackToList = () => {
     setSelectedTask(null);
+    setDetailSource('discover');
     setView('list');
   };
 
@@ -77,6 +81,7 @@ function App() {
       return;
     }
     const destination: AppView = status === 'completed' ? 'settlement' : 'detail';
+    setDetailSource('manage');
     handleSelectTask(target, destination);
   };
 
@@ -149,17 +154,31 @@ function App() {
   }
 
   if (view === 'detail' && selectedTask) {
-    return renderShell(<TaskDetailPage task={selectedTask} onBack={handleBackToList} />, {
+    return renderShell(
+      <TaskDetailPage
+        task={selectedTask}
+        onBack={handleBackToList}
+        hideAskFirst={detailSource === 'manage'}
+      />,
+      {
       mainClassName: 'task-detail-page',
       mainLabel: 'Task detail view',
-    });
+    },
+    );
   }
 
   if (view === 'settlement' && selectedTask) {
-    return renderShell(<TaskSettlementPage task={selectedTask} onBack={handleBackToList} />, {
+    return renderShell(
+      <TaskSettlementPage
+        task={selectedTask}
+        onBack={handleBackToList}
+        hideAskFirst={detailSource === 'manage'}
+      />,
+      {
       mainClassName: 'task-detail-page',
       mainLabel: 'Task settlement view',
-    });
+    },
+    );
   }
 
   if (view === 'manage') {

@@ -54,7 +54,8 @@ const statusBody = z.object({
 router.post('/:id/updateStatus', async (req, res) => {
   const parsed = statusBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
-  const actorUid = 'mock-user';
+  // TODO: replace with authenticated user uid
+  const actorUid = 'mock-user-1';
   try {
     const data = await taskService.updateTaskStatus(
       { taskId: req.params.id, ...parsed.data },

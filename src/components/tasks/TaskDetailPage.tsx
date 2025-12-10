@@ -4,9 +4,10 @@ import type { Task } from '../../api/taskTypes';
 interface TaskDetailPageProps {
   task: Task;
   onBack: () => void;
+  hideAskFirst?: boolean;
 }
 
-const TaskDetailPage: FC<TaskDetailPageProps> = ({ task, onBack }) => {
+const TaskDetailPage: FC<TaskDetailPageProps> = ({ task, onBack, hideAskFirst }) => {
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
   const [copied, setCopied] = useState(false);
@@ -136,9 +137,11 @@ const TaskDetailPage: FC<TaskDetailPageProps> = ({ task, onBack }) => {
       </section>
 
       <footer className="task-detail-footer">
-        <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
-          Ask First
-        </button>
+        {!hideAskFirst && (
+          <button type="button" className="btn-action btn-ask" onClick={handleCopyEmail}>
+            Ask First
+          </button>
+        )}
         <button type="button" className="btn-action btn-claim">
           Claim Now
         </button>

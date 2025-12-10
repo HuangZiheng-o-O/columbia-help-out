@@ -1067,11 +1067,11 @@ body {
   box-shadow: 0 4px 14px rgba(23, 58, 129, 0.2);
 }
 
-.btn-row-primary:disabled,
-.btn-row-success:disabled {
-  opacity: 0.6;
+.btn-row:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
   box-shadow: none;
+  text-decoration: line-through;
 }
 
 .btn-row-success {
@@ -1107,8 +1107,9 @@ body {
 }
 
 .btn-row-warning:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+  text-decoration: line-through;
 }
 
 .btn-row-ghost {
