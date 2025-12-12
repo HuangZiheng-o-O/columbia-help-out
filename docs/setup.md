@@ -81,6 +81,7 @@ Path: `/Users/huangziheng/WebstormProjects/columbia-help-out`
       Otherwise it falls back to `http://localhost:4000`.
 3. Run dev server:
    ```bash
+    cd /Users/huangziheng/WebstormProjects/columbia-help-out
    npm run dev
    ```
 4. Open the printed Vite URL (commonly http://localhost:5173). The frontend now fetches all data from the backend (no mocks).
