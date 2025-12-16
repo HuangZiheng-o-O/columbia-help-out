@@ -1,21 +1,18 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { signInWithGoogle, logOut, onAuthChange } from '../firebase/authService';
+import type { User as FirebaseUser } from 'firebase/auth';
 
-export interface MockUser {
+// Unified user interface for both mock and Firebase users
+export interface AppUser {
   uid: string;
   email: string;
   displayName: string;
   avatarColor: string;
-  password: string; // Mock password for authentication
+  isFirebaseUser: boolean;
 }
 
-// Mock users for testing different user interactions
-// Credentials for testing:
-// - jordan@columbia.edu / jordan123
-// - li.andy@columbia.edu / andy123
-// - sarah.kim@columbia.edu / sarah123
-// - pat.singh@columbia.edu / pat123
-// - alex.taylor@columbia.edu / alex123
-export const MOCK_USERS: MockUser[] = [
+// Mock users for demo/testing
+export const MOCK_USERS = [
   {
     uid: 'mock-user-1',
     email: 'jordan@columbia.edu',
@@ -44,75 +41,146 @@ export const MOCK_USERS: MockUser[] = [
     avatarColor: '#D97706',
     password: 'pat123',
   },
-  {
-    uid: 'mock-user-5',
-    email: 'alex.taylor@columbia.edu',
-    displayName: 'Alex Taylor',
-    avatarColor: '#7C3AED',
-    password: 'alex123',
-  },
 ];
 
+// Generate avatar color from string
+function stringToColor(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const colors = ['#4F46E5', '#059669', '#DC2626', '#D97706', '#7C3AED', '#0891B2', '#BE185D'];
+  return colors[Math.abs(hash) % colors.length];
+}
+
+// Convert Firebase user to AppUser
+function firebaseUserToAppUser(user: FirebaseUser): AppUser {
+  return {
+    uid: user.uid,
+    email: user.email ?? '',
+    displayName: user.displayName ?? user.email?.split('@')[0] ?? 'User',
+    avatarColor: stringToColor(user.uid),
+    isFirebaseUser: true,
+  };
+}
+
 interface UserContextType {
-  currentUser: MockUser | null;
-  login: (user: MockUser) => void;
-  authenticate: (email: string, password: string) => { success: boolean; error?: string };
-  logout: () => void;
+  currentUser: AppUser | null;
   isLoggedIn: boolean;
+  isLoading: boolean;
+  // Mock auth
+  authenticateWithMock: (email: string, password: string) => { success: boolean; error?: string };
+  // Google auth
+  signInWithGoogleAccount: () => Promise<{ success: boolean; error?: string }>;
+  // Logout
+  logout: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<MockUser | null>(() => {
-    // Try to restore user from localStorage
-    const saved = localStorage.getItem('currentUser');
-    if (saved) {
+  const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Listen for Firebase auth state changes
+  useEffect(() => {
+    // First check localStorage for mock user
+    const savedMockUser = localStorage.getItem('mockUser');
+    if (savedMockUser) {
       try {
-        return JSON.parse(saved);
+        setCurrentUser(JSON.parse(savedMockUser));
+        setIsLoading(false);
+        return;
       } catch {
-        return null;
+        localStorage.removeItem('mockUser');
       }
     }
-    return null;
-  });
 
-  const login = (user: MockUser) => {
-    setCurrentUser(user);
-    // Don't store password in localStorage
-    const { password: _, ...userWithoutPassword } = user;
-    localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
-  };
+    // Listen for Firebase auth changes
+    const unsubscribe = onAuthChange((firebaseUser) => {
+      if (firebaseUser) {
+        setCurrentUser(firebaseUserToAppUser(firebaseUser));
+      } else {
+        // Check if there's still a mock user
+        const mockUser = localStorage.getItem('mockUser');
+        if (mockUser) {
+          try {
+            setCurrentUser(JSON.parse(mockUser));
+          } catch {
+            setCurrentUser(null);
+          }
+        } else {
+          setCurrentUser(null);
+        }
+      }
+      setIsLoading(false);
+    });
 
-  const authenticate = (email: string, password: string): { success: boolean; error?: string } => {
+    return () => unsubscribe();
+  }, []);
+
+  // Mock authentication
+  const authenticateWithMock = (email: string, password: string): { success: boolean; error?: string } => {
     const normalizedEmail = email.toLowerCase().trim();
     const user = MOCK_USERS.find((u) => u.email.toLowerCase() === normalizedEmail);
     
     if (!user) {
-      return { success: false, error: 'No account found with this email address.' };
+      return { success: false, error: 'No account found with this email.' };
     }
     
     if (user.password !== password) {
-      return { success: false, error: 'Incorrect password. Please try again.' };
+      return { success: false, error: 'Incorrect password.' };
     }
     
-    login(user);
+    const appUser: AppUser = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      avatarColor: user.avatarColor,
+      isFirebaseUser: false,
+    };
+    
+    setCurrentUser(appUser);
+    localStorage.setItem('mockUser', JSON.stringify(appUser));
     return { success: true };
   };
 
-  const logout = () => {
+  // Google Sign-In
+  const signInWithGoogleAccount = async (): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Clear any mock user first
+      localStorage.removeItem('mockUser');
+      
+      const firebaseUser = await signInWithGoogle();
+      setCurrentUser(firebaseUserToAppUser(firebaseUser));
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Failed to sign in with Google.' };
+    }
+  };
+
+  // Logout
+  const logout = async () => {
+    // Clear mock user
+    localStorage.removeItem('mockUser');
+    
+    // Sign out from Firebase if it's a Firebase user
+    if (currentUser?.isFirebaseUser) {
+      await logOut();
+    }
+    
     setCurrentUser(null);
-    localStorage.removeItem('currentUser');
   };
 
   return (
     <UserContext.Provider
       value={{
         currentUser,
-        login,
-        authenticate,
-        logout,
         isLoggedIn: currentUser !== null,
+        isLoading,
+        authenticateWithMock,
+        signInWithGoogleAccount,
+        logout,
       }}
     >
       {children}
@@ -127,4 +195,3 @@ export function useUser() {
   }
   return context;
 }
-

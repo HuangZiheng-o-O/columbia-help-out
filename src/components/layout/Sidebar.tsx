@@ -1,5 +1,5 @@
 import type { FC, SVGProps, JSX } from 'react';
-import { useUser, type MockUser } from '../../context/UserContext';
+import { useUser, type AppUser } from '../../context/UserContext';
 
 export type SidebarRoute = 'discover' | 'tasks';
 
@@ -14,7 +14,7 @@ interface SidebarProps {
   activeRoute: SidebarRoute;
   onNavigate?: (route: SidebarRoute) => void;
   onPostTask?: () => void;
-  currentUser?: MockUser | null;
+  currentUser?: AppUser | null;
 }
 
 const navItems: NavItem[] = [
@@ -24,6 +24,10 @@ const navItems: NavItem[] = [
 
 const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask, currentUser }) => {
   const { logout } = useUser();
+  
+  const handleLogout = () => {
+    void logout();
+  };
   
   const handleNavigate = (route: SidebarRoute) => {
     if (onNavigate) {
@@ -77,8 +81,8 @@ const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask, curren
             </div>
             <div className="sidebar-user-info">
               <p className="sidebar-user-name">{displayName}</p>
-              <button type="button" className="sidebar-logout-btn" onClick={logout}>
-                Switch user
+              <button type="button" className="sidebar-logout-btn" onClick={handleLogout}>
+                Sign out
               </button>
             </div>
           </div>

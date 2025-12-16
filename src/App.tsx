@@ -22,7 +22,7 @@ export type DetailSource = 'plaza' | 'published' | 'claimed';
 type ReturnTo = 'list' | 'manage';
 
 function App() {
-  const { currentUser, isLoggedIn } = useUser();
+  const { currentUser, isLoggedIn, isLoading: isAuthLoading } = useUser();
   const [view, setView] = useState<AppView>('list');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('discover');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -153,6 +153,17 @@ function App() {
     // Placeholder for other routes.
     alert(`Navigation for "${route}" is not implemented yet.`);
   };
+
+  // Show loading state while checking auth
+  if (isAuthLoading) {
+    return (
+      <div className="login-page">
+        <div className="login-container" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show login page if not logged in
   if (!isLoggedIn || !currentUser) {
