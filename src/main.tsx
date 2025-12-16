@@ -3,6 +3,12 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+// Auto-seed initial data if database is empty
+import { autoSeedIfEmpty } from './firebase/seedData';
+
+// Run auto-seed in background (non-blocking)
+autoSeedIfEmpty().catch(console.error);
+
 const container = document.getElementById('root');
 
 if (!container) {
