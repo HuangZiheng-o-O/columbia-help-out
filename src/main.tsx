@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { UserProvider } from './context/UserContext';
 import './index.css';
 
 // Auto-seed initial data if database is empty
@@ -19,6 +20,8 @@ const root = createRoot(container);
 
 root.render(
   <StrictMode>
-    <App />
+    <UserProvider>
+      <App />
+    </UserProvider>
   </StrictMode>,
 );

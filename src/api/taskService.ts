@@ -31,9 +31,6 @@ export interface TaskService {
   updateTaskStatus(input: UpdateTaskStatusInput): Promise<Task>;
 }
 
-// Current mock user (will be replaced with Firebase Auth later)
-const CURRENT_USER_UID = 'mock-user-1';
-const CURRENT_USER_EMAIL = 'jordan@columbia.edu';
 
 /** Convert Firestore document to Task object */
 function firestoreDocToTask(id: string, data: any): Task {
@@ -63,6 +60,43 @@ function firestoreDocToTask(id: string, data: any): Task {
 function createFirestoreTaskService(): TaskService {
   const tasksCollection = collection(db, 'tasks');
 
+  // Helper function to load claimed tasks using client-side filtering
+  // This avoids needing a composite index for claimedByUid + createdAt
+  async function listClaimedTasksClientSide(
+    claimedByUid: string,
+    searchText?: string,
+    pageSize: number = 20
+  ): Promise<TaskListResult> {
+    try {
+      // Get all tasks and filter client-side
+      const q = query(tasksCollection, orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+
+      let tasks: Task[] = snap.docs
+        .map((doc) => firestoreDocToTask(doc.id, doc.data()))
+        .filter((t) => t.claimedByUid === claimedByUid);
+
+      // Client-side search filter
+      if (searchText) {
+        const lower = searchText.toLowerCase();
+        tasks = tasks.filter(
+          (t) =>
+            t.title.toLowerCase().includes(lower) ||
+            t.location.toLowerCase().includes(lower) ||
+            t.shortDescription?.toLowerCase().includes(lower)
+        );
+      }
+
+      // Limit results
+      const limitedTasks = tasks.slice(0, pageSize);
+
+      return { tasks: limitedTasks, nextCursor: undefined };
+    } catch (error) {
+      console.error('Error fetching claimed tasks:', error);
+      throw error;
+    }
+  }
+
   return {
     async listTasks(queryInput: TaskListQuery): Promise<TaskListResult> {
       const {
@@ -76,21 +110,20 @@ function createFirestoreTaskService(): TaskService {
         scope,
       } = queryInput;
 
+      // For 'claimed' scope, use client-side filtering to avoid needing composite index
+      if (scope === 'claimed' && claimedByUid) {
+        return listClaimedTasksClientSide(claimedByUid, searchText, pageSize);
+      }
+
       const constraints: QueryConstraint[] = [];
 
       // Scope filters
       if (scope === 'published') {
         if (!ownerUid) return { tasks: [], nextCursor: undefined };
         constraints.push(where('createdByUid', '==', ownerUid));
-      } else if (scope === 'claimed') {
-        if (!claimedByUid) return { tasks: [], nextCursor: undefined };
-        constraints.push(where('claimedByUid', '==', claimedByUid));
       } else {
         if (ownerUid) {
           constraints.push(where('createdByUid', '==', ownerUid));
-        }
-        if (claimedByUid) {
-          constraints.push(where('claimedByUid', '==', claimedByUid));
         }
       }
 
@@ -178,8 +211,8 @@ function createFirestoreTaskService(): TaskService {
           isOnline: input.isOnline ?? false,
           urgency: input.urgency ?? 'normal',
           tags: input.tags ?? [],
-          createdByUid: CURRENT_USER_UID,
-          publisherEmail: CURRENT_USER_EMAIL,
+          createdByUid: input.createdByUid,
+          publisherEmail: input.publisherEmail,
           isVerified: true,
           status: 'open',
           claimedByUid: null,
@@ -221,7 +254,7 @@ function createFirestoreTaskService(): TaskService {
         };
 
         if (input.status === 'claimed') {
-          updates.claimedByUid = input.claimedByUid ?? CURRENT_USER_UID;
+          updates.claimedByUid = input.claimedByUid;
           updates.claimedAt = serverTimestamp();
         }
 
@@ -231,7 +264,7 @@ function createFirestoreTaskService(): TaskService {
 
         if (input.status === 'cancelled') {
           // If publisher cancels, clear the claim
-          if (existing.createdByUid === CURRENT_USER_UID) {
+          if (input.currentUserUid && existing.createdByUid === input.currentUserUid) {
             updates.claimedByUid = null;
             updates.claimedAt = null;
           }

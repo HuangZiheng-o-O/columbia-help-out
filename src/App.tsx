@@ -13,13 +13,16 @@ import MyPublishedDetailPage from './components/tasks/MyPublishedDetailPage';
 import MyClaimedDetailPage from './components/tasks/MyClaimedDetailPage';
 import TaskSettlementPage from './components/tasks/TaskSettlementPage';
 import TaskListManagePage from './components/tasks/TaskListManagePage';
+import LoginPage from './components/auth/LoginPage';
+import { useUser } from './context/UserContext';
 
 type AppView = 'list' | 'create' | 'detail' | 'settlement' | 'manage';
 type ManageStatus = TaskStatus;
 export type DetailSource = 'plaza' | 'published' | 'claimed';
-const CURRENT_USER_UID = 'mock-user-1';
 type ReturnTo = 'list' | 'manage';
+
 function App() {
+  const { currentUser, isLoggedIn } = useUser();
   const [view, setView] = useState<AppView>('list');
   const [activeRoute, setActiveRoute] = useState<SidebarRoute>('discover');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -32,6 +35,7 @@ function App() {
   const [searchText, setSearchText] = useState('');
   const [sortBy, setSortBy] = useState<TaskSortBy>('newest');
   const [userLocation, setUserLocation] = useState<LatLng>(DEFAULT_COORD);
+  const [manageRefreshKey, setManageRefreshKey] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -141,12 +145,21 @@ function App() {
       return;
     }
     if (route === 'tasks') {
+      // Increment refresh key to trigger data reload
+      setManageRefreshKey((prev) => prev + 1);
       setView('manage');
       return;
     }
     // Placeholder for other routes.
-    alert(`Navigation for “${route}” is not implemented yet.`);
+    alert(`Navigation for "${route}" is not implemented yet.`);
   };
+
+  // Show login page if not logged in
+  if (!isLoggedIn || !currentUser) {
+    return <LoginPage />;
+  }
+
+  const currentUserUid = currentUser.uid;
 
   const renderShell = (
     content: ReactNode,
@@ -167,6 +180,7 @@ function App() {
             activeRoute={activeRoute}
             onNavigate={handleSidebarNavigate}
             onPostTask={() => setView('create')}
+            currentUser={currentUser}
           />
           <main id={mainId} className={mainClassName} aria-label={mainLabel ?? 'Task area'}>
             {content}
@@ -204,18 +218,18 @@ function App() {
       detailSource !== 'plaza' || returnTo === 'manage' ? backToManage : handleBackToList;
     if (detailSource === 'plaza') {
       return renderShell(
-        <PlazaDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
+        <PlazaDetailPage task={selectedTask} onBack={backTo} currentUid={currentUserUid} />,
         { mainClassName: 'task-detail-page', mainLabel: 'Task detail view' },
       );
     }
     if (detailSource === 'published') {
       return renderShell(
-        <MyPublishedDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
+        <MyPublishedDetailPage task={selectedTask} onBack={backTo} currentUid={currentUserUid} />,
         { mainClassName: 'task-detail-page', mainLabel: 'My published task detail' },
       );
     }
     return renderShell(
-      <MyClaimedDetailPage task={selectedTask} onBack={backTo} currentUid={CURRENT_USER_UID} />,
+      <MyClaimedDetailPage task={selectedTask} onBack={backTo} currentUid={currentUserUid} />,
       { mainClassName: 'task-detail-page', mainLabel: 'My claimed task detail' },
     );
   }
@@ -242,6 +256,8 @@ function App() {
     return renderShell(
       <TaskListManagePage
         onSelectTask={(id, status, source) => handleSelectTaskFromManage(id, status, source)}
+        refreshKey={manageRefreshKey}
+        currentUserUid={currentUserUid}
       />,
       {
       mainLabel: 'Task management',

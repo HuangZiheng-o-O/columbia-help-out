@@ -1,4 +1,5 @@
 import type { FC, SVGProps, JSX } from 'react';
+import { useUser, type MockUser } from '../../context/UserContext';
 
 export type SidebarRoute = 'discover' | 'tasks';
 
@@ -13,6 +14,7 @@ interface SidebarProps {
   activeRoute: SidebarRoute;
   onNavigate?: (route: SidebarRoute) => void;
   onPostTask?: () => void;
+  currentUser?: MockUser | null;
 }
 
 const navItems: NavItem[] = [
@@ -20,18 +22,24 @@ const navItems: NavItem[] = [
   { id: 'tasks', label: 'My tasks', icon: ListIcon },
 ];
 
-const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask }) => {
+const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask, currentUser }) => {
+  const { logout } = useUser();
+  
   const handleNavigate = (route: SidebarRoute) => {
     if (onNavigate) {
       onNavigate(route);
     }
   };
 
+  const displayName = currentUser?.displayName ?? 'Guest';
+  const avatarLetter = displayName.charAt(0).toUpperCase();
+  const avatarColor = currentUser?.avatarColor ?? '#64748b';
+
   return (
     <nav className="sidebar" aria-label="Main navigation">
       <div className="sidebar-inner">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-mark">TP</div>
+          <div className="sidebar-logo-mark">🦁</div>
           <div className="sidebar-logo-text">
             <span>Columbia</span>
             <p>Help Out</p>
@@ -64,9 +72,14 @@ const Sidebar: FC<SidebarProps> = ({ activeRoute, onNavigate, onPostTask }) => {
         </button>
 
           <div className="sidebar-user">
-            <div className="sidebar-avatar">J</div>
-            <div>
-              <p className="sidebar-user-name">Jordan Lee</p>
+            <div className="sidebar-avatar" style={{ backgroundColor: avatarColor }}>
+              {avatarLetter}
+            </div>
+            <div className="sidebar-user-info">
+              <p className="sidebar-user-name">{displayName}</p>
+              <button type="button" className="sidebar-logout-btn" onClick={logout}>
+                Switch user
+              </button>
             </div>
           </div>
         </div>

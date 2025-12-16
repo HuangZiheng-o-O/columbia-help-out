@@ -2,6 +2,7 @@ import { useEffect, useState, type FC } from 'react';
 import type { Task } from '../../api/taskTypes';
 import { copyTextToClipboard } from '../../utils/clipboard';
 import { taskService } from '../../api/taskService';
+import { useUser } from '../../context/UserContext';
 
 interface PlazaDetailPageProps {
   task: Task;
@@ -10,6 +11,7 @@ interface PlazaDetailPageProps {
 }
 
 const PlazaDetailPage: FC<PlazaDetailPageProps> = ({ task, onBack }) => {
+  const { currentUser } = useUser();
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
   const [copied, setCopied] = useState(false);
@@ -31,14 +33,28 @@ const PlazaDetailPage: FC<PlazaDetailPageProps> = ({ task, onBack }) => {
   };
 
   const handleClaim = async () => {
+    if (!currentUser) {
+      alert('Please log in first.');
+      return;
+    }
+    // Prevent claiming own tasks
+    if (task.createdByUid === currentUser.uid) {
+      alert('You cannot claim your own task.');
+      return;
+    }
+    // Prevent claiming already claimed tasks
+    if (task.status === 'claimed' || task.claimedByUid) {
+      alert('This task has already been claimed.');
+      return;
+    }
     try {
       setIsClaiming(true);
       await taskService.updateTaskStatus({
         taskId: task.id,
         status: 'claimed',
-        claimedByUid: 'mock-user-1',
+        claimedByUid: currentUser.uid,
       });
-      alert('Claimed successfully.');
+      alert('Claimed successfully! Check "My tasks" to see it.');
     } catch (error) {
       console.error(error);
       alert('Failed to claim. Please try again.');

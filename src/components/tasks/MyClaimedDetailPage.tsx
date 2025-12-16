@@ -2,6 +2,7 @@ import { useEffect, useState, type FC } from 'react';
 import type { Task, TaskStatus } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
 import { copyTextToClipboard } from '../../utils/clipboard';
+import { useUser } from '../../context/UserContext';
 
 interface MyClaimedDetailPageProps {
   task: Task;
@@ -12,13 +13,12 @@ interface MyClaimedDetailPageProps {
 const MyClaimedDetailPage: FC<MyClaimedDetailPageProps> = ({
   task,
   onBack,
-  currentUid = 'mock-user-1',
 }) => {
+  const { currentUser } = useUser();
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
   const [copied, setCopied] = useState(false);
   const [isActioning, setIsActioning] = useState(false);
-  const isClaimer = task.claimedByUid === currentUid;
 
   useEffect(() => {
     if (!copied) return;
@@ -41,6 +41,7 @@ const MyClaimedDetailPage: FC<MyClaimedDetailPageProps> = ({
       await taskService.updateTaskStatus({
         taskId: task.id,
         status,
+        currentUserUid: currentUser?.uid,
       });
       onBack();
     } catch (error) {
@@ -147,14 +148,7 @@ const MyClaimedDetailPage: FC<MyClaimedDetailPageProps> = ({
         >
           Copy Email
         </button>
-        <button
-          type="button"
-          className="btn-row btn-row-success"
-          disabled={!isClaimer || isActioning}
-          onClick={() => updateStatus('claimed')}
-        >
-          Mark as Done
-        </button>
+        {/* Only claimer can withdraw, publisher marks as completed */}
         <button
           type="button"
           className="btn-row btn-row-warning"

@@ -8,6 +8,7 @@ import {
 } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
 import { suggestLocations } from '../../utils/geocoder';
+import { useUser } from '../../context/UserContext';
 
 interface CreateTaskPageProps {
   onCancel?: () => void;
@@ -18,6 +19,7 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
   onCancel,
   onCreated,
 }) => {
+  const { currentUser } = useUser();
   // TODO: replace with real user balance from auth/profile
   const availableCredits = 80;
   const [title, setTitle] = useState('');
@@ -91,6 +93,8 @@ const CreateTaskPage: React.FC<CreateTaskPageProps> = ({
       isOnline,
       urgency,
       tags: [category],
+      createdByUid: currentUser?.uid ?? '',
+      publisherEmail: currentUser?.email ?? '',
     };
   }
 

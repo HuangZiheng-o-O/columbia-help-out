@@ -56,6 +56,8 @@ export interface UpdateTaskStatusInput {
   claimedByUid?: string | null;
   completedAt?: string | null;
   cancelledReason?: string;
+  // Current user performing the action (for permission checks)
+  currentUserUid?: string;
 }
 
 /** Payload for creating a new task. */
@@ -69,4 +71,7 @@ export interface CreateTaskInput {
   isOnline?: boolean;
   urgency?: TaskUrgency;
   tags?: string[];
+  // User info for task creation
+  createdByUid: string;
+  publisherEmail: string;
 }

@@ -1,6 +1,7 @@
 import { useState, type FC } from 'react';
 import type { Task, TaskStatus } from '../../api/taskTypes';
 import { taskService } from '../../api/taskService';
+import { useUser } from '../../context/UserContext';
 
 interface MyPublishedDetailPageProps {
   task: Task;
@@ -11,12 +12,12 @@ interface MyPublishedDetailPageProps {
 const MyPublishedDetailPage: FC<MyPublishedDetailPageProps> = ({
   task,
   onBack,
-  currentUid = 'mock-user-1',
 }) => {
+  const { currentUser } = useUser();
   const postedLabel = formatPostedLabel(task.createdAt);
   const detailItems = buildDetailList(task);
   const [isActioning, setIsActioning] = useState(false);
-  const isPublisher = task.createdByUid === currentUid;
+  const isPublisher = task.createdByUid === currentUser?.uid;
   const disableWithdraw =
     task.status === 'cancelled' || task.status === 'completed' || (isPublisher && task.claimedByUid);
   const disableComplete = !isPublisher || (task.status !== 'open' && task.status !== 'claimed');
@@ -28,6 +29,7 @@ const MyPublishedDetailPage: FC<MyPublishedDetailPageProps> = ({
         taskId: task.id,
         status,
         completedAt: status === 'completed' ? new Date().toISOString() : undefined,
+        currentUserUid: currentUser?.uid,
       });
       onBack();
     } catch (error) {

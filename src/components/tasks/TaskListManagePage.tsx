@@ -8,9 +8,11 @@ type TabKey = 'published' | 'claimed';
 
 interface TaskListManagePageProps {
   onSelectTask?: (taskId: string, status: TaskStatus, source: DetailSource) => void;
+  refreshKey?: number; // Used to trigger re-fetch when returning to this page
+  currentUserUid: string;
 }
 
-const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
+const TaskListManagePage = ({ onSelectTask, refreshKey, currentUserUid }: TaskListManagePageProps) => {
   const [activeTab, setActiveTab] = useState<TabKey>('published');
   const [publishedTasks, setPublishedTasks] = useState<Task[]>([]);
   const [claimedTasks, setClaimedTasks] = useState<Task[]>([]);
@@ -20,8 +22,6 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
   const [errorClaimed, setErrorClaimed] = useState<string | null>(null);
   const [actioningId, setActioningId] = useState<string | null>(null);
 
-  const currentUserUid = 'mock-user-1';
-
   const summary = useMemo(
     () => ({
       published: publishedTasks.length,
@@ -30,10 +30,11 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
     [publishedTasks, claimedTasks],
   );
 
+  // Reload data whenever component mounts or refreshKey changes
   useEffect(() => {
     void loadPublished();
     void loadClaimed();
-  }, []);
+  }, [refreshKey]);
 
   async function loadPublished() {
     try {
@@ -85,6 +86,7 @@ const TaskListManagePage = ({ onSelectTask }: TaskListManagePageProps) => {
         taskId,
         status,
         completedAt: status === 'completed' ? new Date().toISOString() : undefined,
+        currentUserUid,
       });
       if (listType === 'published') {
         await loadPublished();
@@ -233,13 +235,15 @@ interface TaskListRowProps {
 
 const TaskListRow = ({ task, listType, onAction, onSelectTask, actioningId }: TaskListRowProps) => {
   const statusUi = mapStatusToUi(task.status);
-  const disableWithdraw = task.status === 'cancelled' || task.status === 'completed';
+  const isFinished = task.status === 'completed' || task.status === 'cancelled';
   const meta =
     listType === 'published'
       ? `Posted by you${task.claimedByUid ? ' · Claimed' : ''}`
       : 'You claimed this task';
-  const disableComplete =
-    listType === 'claimed' || (task.status !== 'open' && task.status !== 'claimed');
+
+  // Only publisher can mark as completed, and only when task is claimed
+  const showMarkCompleted = listType === 'published' && !isFinished && task.status === 'claimed';
+  const showWithdraw = !isFinished;
 
   return (
     <li
@@ -266,26 +270,30 @@ const TaskListRow = ({ task, listType, onAction, onSelectTask, actioningId }: Ta
         >
           View details
         </button>
-        <button
-          type="button"
-          className="btn-row btn-row-success"
-          data-action="mark-completed"
-          aria-label={`Mark task “${task.title}” as completed`}
-          disabled={disableComplete || actioningId === task.id}
-          onClick={() => onAction(listType, task.id, 'mark-completed')}
-        >
-          Mark Completed
-        </button>
-        <button
-          type="button"
-          className="btn-row btn-row-warning"
-          data-action="withdraw"
-          aria-label={`Withdraw task “${task.title}”`}
-          disabled={disableWithdraw || actioningId === task.id}
-          onClick={() => onAction(listType, task.id, 'withdraw')}
-        >
-          Withdraw
-        </button>
+        {showMarkCompleted && (
+          <button
+            type="button"
+            className="btn-row btn-row-success"
+            data-action="mark-completed"
+            aria-label={`Mark task "${task.title}" as completed`}
+            disabled={actioningId === task.id}
+            onClick={() => onAction(listType, task.id, 'mark-completed')}
+          >
+            Mark Completed
+          </button>
+        )}
+        {showWithdraw && (
+          <button
+            type="button"
+            className="btn-row btn-row-warning"
+            data-action="withdraw"
+            aria-label={`Withdraw task "${task.title}"`}
+            disabled={actioningId === task.id}
+            onClick={() => onAction(listType, task.id, 'withdraw')}
+          >
+            Withdraw
+          </button>
+        )}
       </div>
     </li>
   );
