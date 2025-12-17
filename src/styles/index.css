@@ -405,7 +405,6 @@ input {
   font-family: inherit;
   font-size: 2rem;
   font-weight: 700;
-  font-style: italic;
   color: #1f3f72;
   margin: 0;
   white-space: nowrap;
@@ -792,7 +791,6 @@ input {
   font-family: inherit;
   font-size: 2rem;
   font-weight: 700;
-  font-style: italic;
   color: #1f3f72;
   margin: 0 0 0.5rem 0;
 }
@@ -1023,7 +1021,6 @@ input {
   font-family: inherit;
   font-size: 2rem;
   font-weight: 700;
-  font-style: italic;
   color: #1f3f72;
   margin: 0 0 1rem 0;
 }
@@ -1233,7 +1230,6 @@ input {
   font-family: inherit;
   font-size: 2rem;
   font-weight: 700;
-  font-style: italic;
   color: #1f3f72;
   margin: 0 0 0.25rem 0;
 }
@@ -1331,7 +1327,6 @@ input {
   font-family: inherit;
   font-size: 1.5rem;
   font-weight: 700;
-  font-style: italic;
   color: #1f3f72;
   margin: 0 0 1rem 0;
 }
