@@ -91,7 +91,7 @@ export default function PostTaskPage({ onCancel, onSuccess }) {
               className="form-input"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder=""
+              placeholder="Enter a clear and descriptive title"
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function PostTaskPage({ onCancel, onSuccess }) {
               className="form-input"
               value={formData.location}
               onChange={(e) => handleInputChange('location', e.target.value)}
-              placeholder=""
+              placeholder="e.g. Butler Library, Columbia University"
             />
           </div>
 
@@ -133,7 +133,7 @@ export default function PostTaskPage({ onCancel, onSuccess }) {
               className="form-textarea"
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder=""
+              placeholder="Provide more details about the task, requirements, and any other relevant information..."
               rows={6}
             />
           </div>
@@ -147,6 +147,7 @@ export default function PostTaskPage({ onCancel, onSuccess }) {
                 className="form-input small-input"
                 value={formData.durationMinutes}
                 onChange={(e) => handleInputChange('durationMinutes', e.target.value)}
+                placeholder="30"
                 min="1"
               />
             </div>
@@ -157,6 +158,7 @@ export default function PostTaskPage({ onCancel, onSuccess }) {
                 className="form-input small-input"
                 value={formData.credits}
                 onChange={(e) => handleInputChange('credits', e.target.value)}
+                placeholder="50"
                 min="1"
               />
             </div>

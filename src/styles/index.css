@@ -519,7 +519,7 @@ input {
 
 /*  Task Grid*/
 .task-grid-container {
-  padding: 0.5rem 1.25rem 1.5rem;
+  padding: 0.5rem 1.25rem 1.5rem 0rem;
   max-width: calc(100% - 8px);
   margin: 0 auto;
   box-sizing: border-box;
@@ -808,7 +808,7 @@ input {
 .task-list-controls {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   margin-bottom: 1.25rem;
 }
 
@@ -1313,6 +1313,7 @@ input {
 
 .balance-value.available .balance-number {
   color: #22c55e;
+  text-decoration: underline;
 }
 
 .balance-value.locked .balance-number {
@@ -1372,8 +1373,9 @@ input {
 }
 
 .transaction-status.unsettled {
-  background: #e5e7eb;
-  color: #4b5563;
+  background: #e0f4ff;
+  border: 2px solid #7dd3fc;
+  color: #0369a1;
 }
 
 .transaction-status.withdrawn {
@@ -1398,4 +1400,339 @@ input {
 
 .transaction-credits.negative {
   color: #ef4444;
+}
+
+/* ============================================
+   Task Detail Page
+   ============================================ */
+
+.task-detail-page {
+  padding: 2rem;
+  background: #f0f2f5;
+  min-height: 100%;
+}
+
+.task-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.detail-back-btn {
+  background: none;
+  border: none;
+  color: #5b9bd5;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  font-family: inherit;
+}
+
+.detail-back-btn:hover {
+  text-decoration: underline;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  font-family: inherit;
+}
+
+.detail-category {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.detail-category.daily {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.detail-category.academic {
+  background: #a8f0c4;
+  color: #1a6b3a;
+}
+
+.detail-category.campus {
+  background: #a5d8e6;
+  color: #1e5f73;
+}
+
+.detail-category.other {
+  background: #BCBCF2;
+  color: #3d3d6b;
+}
+
+.detail-posted {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.detail-stats-box {
+  display: inline-flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.detail-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.detail-stat-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.detail-stat-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.detail-stat-unit {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.detail-stat-divider {
+  width: 1px;
+  height: 50px;
+  background: #d1d5db;
+  margin: 0 1.5rem;
+}
+
+.detail-section {
+  margin-bottom: 1.75rem;
+}
+
+.detail-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem 0;
+  font-family: inherit;
+}
+
+.detail-section-title.with-bar {
+  position: relative;
+  padding-left: 0.75rem;
+}
+
+.detail-section-title.with-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #5b9bd5;
+  border-radius: 2px;
+}
+
+.detail-location-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+.detail-location-icon {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.detail-description-box {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.detail-description {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #4b5563;
+  margin: 0;
+}
+
+.detail-reputation-box {
+  display: flex;
+  gap: 1rem;
+}
+
+.reputation-stat {
+  flex: 1;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reputation-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.reputation-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.detail-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #fffbeb;
+  border: 2px solid #fbbf24;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #92400e;
+}
+
+.warning-icon {
+  font-size: 1.25rem;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-copy-email {
+  flex: 1;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 25px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-copy-email:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-claim-now {
+  flex: 1;
+  background: #fbbf24;
+  border: 2px solid #f59e0b;
+  border-radius: 25px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btn-claim-now:hover:not(:disabled) {
+  background: #f59e0b;
+  transform: translateY(-1px);
+}
+
+.btn-claim-now:disabled {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Task List Detail Page
+   ============================================ */
+
+.task-list-detail-page {
+  padding: 2rem;
+  background: #f0f2f5;
+  min-height: 100%;
+}
+
+.task-list-detail-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Section with divider line */
+.detail-section.with-divider {
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* User info section */
+.detail-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-info-line {
+  margin: 0;
+  font-size: 1rem;
+  color: #1a1a1a;
+}
+
+.user-info-label {
+  font-weight: 700;
+}
+
+.user-info-name {
+  font-weight: 400;
+  margin-left: 0.5rem;
 }

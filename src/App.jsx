@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import TaskListPage from './pages/TaskListPage';
 import PostTaskPage from './pages/PostTaskPage';
 import ProfilePage from './pages/ProfilePage';
+import TaskDetailPage from './pages/TaskDetailPage';
 import Sidebar from './components/Sidebar';
 import PlazaHeader from './components/PlazaHeader';
 import TaskGrid from './components/TaskGrid';
@@ -17,7 +18,8 @@ export default function App() {
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [sortBy, setSortBy] = useState('nearest');
+  const [sortBy, setSortBy] = useState('newest');
+  const [selectedTask, setSelectedTask] = useState(null);
 
   // Load tasks (only open/unsettled tasks for Plaza)
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function App() {
         setIsLoading(true);
         const result = await taskService.listTasks({
           searchText,
-          sortBy: sortBy === 'nearest' ? 'newest' : sortBy,
+          sortBy,
           status: 'open',  // Only show open tasks in Plaza
           limit: 50,
         });
@@ -51,7 +53,7 @@ export default function App() {
       setIsLoading(true);
       const result = await taskService.listTasks({
         searchText,
-        sortBy: sortBy === 'nearest' ? 'newest' : sortBy,
+        sortBy,
         status: 'open',  // Only show open tasks in Plaza
         limit: 50,
       });
@@ -87,7 +89,22 @@ export default function App() {
 
   // Handle view details
   const handleViewDetails = (task) => {
-    alert(`Task Details:\n\n${task.title}\n\n${task.shortDescription || 'No description'}\n\nCredits: ${task.credits}\nLocation: ${task.location}`);
+    setSelectedTask(task);
+    setActiveRoute('taskDetail');
+  };
+
+  // Handle back from detail
+  const handleBackFromDetail = () => {
+    setSelectedTask(null);
+    setActiveRoute('discover');
+  };
+
+  // Handle task claimed
+  const handleTaskClaimed = () => {
+    setSelectedTask(null);
+    setActiveRoute('discover');
+    // Reload tasks
+    window.location.reload();
   };
 
   // Auth loading state
@@ -118,6 +135,14 @@ export default function App() {
           <PostTaskPage
             onCancel={handlePostTaskCancel}
             onSuccess={handlePostTaskSuccess}
+          />
+        );
+      case 'taskDetail':
+        return (
+          <TaskDetailPage
+            task={selectedTask}
+            onBack={handleBackFromDetail}
+            onClaimed={handleTaskClaimed}
           />
         );
       case 'discover':

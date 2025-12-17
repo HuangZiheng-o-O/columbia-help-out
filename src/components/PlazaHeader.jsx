@@ -9,7 +9,7 @@ export default function PlazaHeader({
   // Sort options matching Figma exactly
   const sortOptions = [
     { value: 'newest', label: 'Newest' },
-    { value: 'nearest', label: 'Nearest' },
+    { value: 'duration_asc', label: 'Duration: Short → Long' },
     { value: 'credits_desc', label: 'Credit: High → Low' },
   ];
 

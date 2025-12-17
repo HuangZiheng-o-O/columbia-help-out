@@ -35,11 +35,14 @@ function firestoreDocToTask(id, data) {
     createdAt: data.createdAt?.toDate?.().toISOString() ?? new Date().toISOString(),
     createdByUid: data.createdByUid ?? '',
     publisherEmail: data.publisherEmail ?? undefined,
+    publisherName: data.publisherName ?? undefined,
     status: data.status ?? 'open',
     isVerified: data.isVerified ?? false,
     isOnline: data.isOnline ?? false,
     tags: data.tags ?? [],
     claimedByUid: data.claimedByUid ?? null,
+    claimerName: data.claimerName ?? null,
+    claimerEmail: data.claimerEmail ?? null,
     claimedAt: data.claimedAt?.toDate?.().toISOString() ?? null,
     completedAt: data.completedAt?.toDate?.().toISOString() ?? null,
   };
@@ -122,13 +125,8 @@ function createFirestoreTaskService() {
         filterByStatus = status;
       }
 
-      // Sorting
-      if (sortBy === 'credits_desc') {
-        constraints.push(orderBy('credits', 'desc'));
-        constraints.push(orderBy('createdAt', 'desc'));
-      } else {
-        constraints.push(orderBy('createdAt', 'desc'));
-      }
+      // Always sort by createdAt in Firestore, do other sorting client-side
+      constraints.push(orderBy('createdAt', 'desc'));
 
       // Pagination
       if (cursor) {
@@ -166,6 +164,13 @@ function createFirestoreTaskService() {
               t.location.toLowerCase().includes(lower) ||
               t.shortDescription?.toLowerCase().includes(lower)
           );
+        }
+
+        // Client-side sorting
+        if (sortBy === 'credits_desc') {
+          tasks.sort((a, b) => b.credits - a.credits);
+        } else if (sortBy === 'duration_asc') {
+          tasks.sort((a, b) => a.durationMinutes - b.durationMinutes);
         }
 
         // Calculate next cursor
@@ -230,9 +235,12 @@ function createFirestoreTaskService() {
           tags: input.tags ?? [],
           createdByUid: input.createdByUid,
           publisherEmail: input.publisherEmail,
+          publisherName: input.publisherName || 'User',
           isVerified: true,
           status: 'open',
           claimedByUid: null,
+          claimerName: null,
+          claimerEmail: null,
           claimedAt: null,
           completedAt: null,
           createdAt: serverTimestamp(),
@@ -285,6 +293,8 @@ function createFirestoreTaskService() {
 
         if (input.status === 'claimed') {
           updates.claimedByUid = input.claimedByUid;
+          updates.claimerName = input.claimerName || 'User';
+          updates.claimerEmail = input.claimerEmail || null;
           updates.claimedAt = serverTimestamp();
 
           // Ensure claimer has a user record

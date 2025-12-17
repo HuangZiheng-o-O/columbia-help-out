@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../context/UserContext';
 import { taskService } from '../api/taskService';
+import TaskListDetailPage from './TaskListDetailPage';
 
 export default function TaskListPage() {
   const { currentUser } = useUser();
@@ -8,6 +9,7 @@ export default function TaskListPage() {
   const [publishedTasks, setPublishedTasks] = useState([]);
   const [claimedTasks, setClaimedTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   // Load tasks
   useEffect(() => {
@@ -109,6 +111,26 @@ export default function TaskListPage() {
   const publishedCount = publishedTasks.length;
   const claimedCount = claimedTasks.length;
 
+  // Handle view details
+  const handleViewDetails = (task) => {
+    setSelectedTask(task);
+  };
+
+  // Handle back from detail
+  const handleBackFromDetail = () => {
+    setSelectedTask(null);
+  };
+
+  // If a task is selected, show detail page
+  if (selectedTask) {
+    return (
+      <TaskListDetailPage
+        task={selectedTask}
+        onBack={handleBackFromDetail}
+      />
+    );
+  }
+
   return (
     <div className="task-list-page">
       <div className="task-list-container">
@@ -169,7 +191,7 @@ export default function TaskListPage() {
                 </span>
               </div>
               <div className="task-list-item-actions">
-                <button className="btn-task-details">Details</button>
+                <button className="btn-task-details" onClick={() => handleViewDetails(task)}>Details</button>
                 
                 {/* My Published: Show Mark Completed, disabled if not claimed, hide if cancelled/completed */}
                 {activeTab === 'published' && task.status !== 'cancelled' && task.status !== 'completed' && (
