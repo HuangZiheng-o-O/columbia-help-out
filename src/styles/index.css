@@ -917,8 +917,8 @@ input {
 }
 
 .status-unsettled {
-  background: #4b5563;
-  color: #ffffff;
+  background: #e0f4ff;
+  color: #0369a1;
 }
 
 .status-withdrawn {
@@ -1374,7 +1374,6 @@ input {
 
 .transaction-status.unsettled {
   background: #e0f4ff;
-  border: 2px solid #7dd3fc;
   color: #0369a1;
 }
 
