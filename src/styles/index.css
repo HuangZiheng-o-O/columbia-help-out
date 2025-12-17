@@ -2,6 +2,9 @@
    Columbia Help 
    ============================================ */
 
+/* Google Fonts - Gabarito */
+@import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;500;600;700&display=swap');
+
 /* CSS Variables */
 :root {
   /* Primary palette */
@@ -51,7 +54,7 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  font-family: 'Gabarito', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-gray);
   color: var(--text-dark);
   line-height: 1.5;
