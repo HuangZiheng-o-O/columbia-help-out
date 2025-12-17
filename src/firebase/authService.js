@@ -2,8 +2,7 @@ import {
   signInWithPopup, 
   GoogleAuthProvider, 
   signOut,
-  onAuthStateChanged,
-  type User 
+  onAuthStateChanged
 } from 'firebase/auth';
 import { auth } from './config';
 
@@ -16,8 +15,9 @@ googleProvider.setCustomParameters({
 
 /**
  * Sign in with Google (Columbia accounts only)
+ * @returns {Promise<import('firebase/auth').User>}
  */
-export async function signInWithGoogle(): Promise<User> {
+export async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     
@@ -28,7 +28,7 @@ export async function signInWithGoogle(): Promise<User> {
     }
     
     return result.user;
-  } catch (error: any) {
+  } catch (error) {
     // Handle specific errors
     if (error.code === 'auth/popup-closed-by-user') {
       throw new Error('Sign-in cancelled');
@@ -43,21 +43,24 @@ export async function signInWithGoogle(): Promise<User> {
 /**
  * Sign out current user
  */
-export async function logOut(): Promise<void> {
+export async function logOut() {
   await signOut(auth);
 }
 
 /**
  * Subscribe to auth state changes
+ * @param {function} callback
+ * @returns {function} Unsubscribe function
  */
-export function onAuthChange(callback: (user: User | null) => void): () => void {
+export function onAuthChange(callback) {
   return onAuthStateChanged(auth, callback);
 }
 
 /**
  * Get current user
+ * @returns {import('firebase/auth').User | null}
  */
-export function getCurrentUser(): User | null {
+export function getCurrentUser() {
   return auth.currentUser;
 }
 

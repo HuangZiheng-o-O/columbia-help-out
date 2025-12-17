@@ -1,4 +1,9 @@
-export async function copyTextToClipboard(text: string): Promise<boolean> {
+/**
+ * Copy text to clipboard
+ * @param {string} text
+ * @returns {Promise<boolean>}
+ */
+export async function copyTextToClipboard(text) {
   try {
     if (navigator?.clipboard?.writeText) {
       await navigator.clipboard.writeText(text);

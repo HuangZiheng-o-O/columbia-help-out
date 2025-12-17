@@ -12,28 +12,16 @@ import {
   updateDoc,
   Timestamp,
   serverTimestamp,
-  QueryConstraint,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import type {
-  Task,
-  TaskListQuery,
-  TaskListResult,
-  CreateTaskInput,
-  UpdateTaskStatusInput,
-} from './taskTypes';
 
-/** Task service interface: contract between frontend and backend. */
-export interface TaskService {
-  listTasks(query: TaskListQuery): Promise<TaskListResult>;
-  getTaskById(id: string): Promise<Task | null>;
-  createTask(input: CreateTaskInput): Promise<Task>;
-  updateTaskStatus(input: UpdateTaskStatusInput): Promise<Task>;
-}
-
-
-/** Convert Firestore document to Task object */
-function firestoreDocToTask(id: string, data: any): Task {
+/**
+ * Convert Firestore document to Task object
+ * @param {string} id
+ * @param {object} data
+ * @returns {object}
+ */
+function firestoreDocToTask(id, data) {
   return {
     id,
     title: data.title ?? '',
@@ -56,23 +44,21 @@ function firestoreDocToTask(id: string, data: any): Task {
   };
 }
 
-/** Firestore-based task service implementation */
-function createFirestoreTaskService(): TaskService {
+/**
+ * Create Firestore task service
+ */
+function createFirestoreTaskService() {
   const tasksCollection = collection(db, 'tasks');
 
-  // Helper function to load claimed tasks using client-side filtering
-  // This avoids needing a composite index for claimedByUid + createdAt
-  async function listClaimedTasksClientSide(
-    claimedByUid: string,
-    searchText?: string,
-    pageSize: number = 20
-  ): Promise<TaskListResult> {
+  /**
+   * List claimed tasks using client-side filtering
+   */
+  async function listClaimedTasksClientSide(claimedByUid, searchText, pageSize = 20) {
     try {
-      // Get all tasks and filter client-side
       const q = query(tasksCollection, orderBy('createdAt', 'desc'));
       const snap = await getDocs(q);
 
-      let tasks: Task[] = snap.docs
+      let tasks = snap.docs
         .map((doc) => firestoreDocToTask(doc.id, doc.data()))
         .filter((t) => t.claimedByUid === claimedByUid);
 
@@ -87,10 +73,7 @@ function createFirestoreTaskService(): TaskService {
         );
       }
 
-      // Limit results
-      const limitedTasks = tasks.slice(0, pageSize);
-
-      return { tasks: limitedTasks, nextCursor: undefined };
+      return { tasks: tasks.slice(0, pageSize), nextCursor: undefined };
     } catch (error) {
       console.error('Error fetching claimed tasks:', error);
       throw error;
@@ -98,7 +81,12 @@ function createFirestoreTaskService(): TaskService {
   }
 
   return {
-    async listTasks(queryInput: TaskListQuery): Promise<TaskListResult> {
+    /**
+     * List tasks
+     * @param {object} queryInput
+     * @returns {Promise<{tasks: object[], nextCursor?: string}>}
+     */
+    async listTasks(queryInput) {
       const {
         searchText,
         sortBy = 'newest',
@@ -110,12 +98,12 @@ function createFirestoreTaskService(): TaskService {
         scope,
       } = queryInput;
 
-      // For 'claimed' scope, use client-side filtering to avoid needing composite index
+      // For 'claimed' scope, use client-side filtering
       if (scope === 'claimed' && claimedByUid) {
         return listClaimedTasksClientSide(claimedByUid, searchText, pageSize);
       }
 
-      const constraints: QueryConstraint[] = [];
+      const constraints = [];
 
       // Scope filters
       if (scope === 'published') {
@@ -137,29 +125,27 @@ function createFirestoreTaskService(): TaskService {
         constraints.push(orderBy('credits', 'desc'));
         constraints.push(orderBy('createdAt', 'desc'));
       } else {
-        // newest (default)
         constraints.push(orderBy('createdAt', 'desc'));
       }
 
-      // Pagination with cursor
+      // Pagination
       if (cursor) {
         const [createdAtMillis] = cursor.split('_');
         const createdAt = Timestamp.fromMillis(Number(createdAtMillis));
         constraints.push(startAfter(createdAt));
       }
 
-      // Limit
       constraints.push(limit(pageSize + 1));
 
       try {
         const q = query(tasksCollection, ...constraints);
         const snap = await getDocs(q);
 
-        let tasks: Task[] = snap.docs.slice(0, pageSize).map((doc) =>
+        let tasks = snap.docs.slice(0, pageSize).map((doc) =>
           firestoreDocToTask(doc.id, doc.data())
         );
 
-        // Client-side search filter (Firestore doesn't support full-text search natively)
+        // Client-side search filter
         if (searchText) {
           const lower = searchText.toLowerCase();
           tasks = tasks.filter(
@@ -171,7 +157,7 @@ function createFirestoreTaskService(): TaskService {
         }
 
         // Calculate next cursor
-        let nextCursor: string | undefined;
+        let nextCursor;
         if (snap.docs.length > pageSize) {
           const lastDoc = snap.docs[pageSize - 1];
           const data = lastDoc.data();
@@ -187,7 +173,12 @@ function createFirestoreTaskService(): TaskService {
       }
     },
 
-    async getTaskById(id: string): Promise<Task | null> {
+    /**
+     * Get task by ID
+     * @param {string} id
+     * @returns {Promise<object|null>}
+     */
+    async getTaskById(id) {
       try {
         const docRef = doc(db, 'tasks', id);
         const snap = await getDoc(docRef);
@@ -199,7 +190,12 @@ function createFirestoreTaskService(): TaskService {
       }
     },
 
-    async createTask(input: CreateTaskInput): Promise<Task> {
+    /**
+     * Create a new task
+     * @param {object} input
+     * @returns {Promise<object>}
+     */
+    async createTask(input) {
       try {
         const docData = {
           title: input.title,
@@ -224,7 +220,6 @@ function createFirestoreTaskService(): TaskService {
 
         const docRef = await addDoc(tasksCollection, docData);
         
-        // Fetch the created document to return complete task
         const created = await this.getTaskById(docRef.id);
         if (!created) throw new Error('Failed to fetch created task');
         return created;
@@ -234,7 +229,12 @@ function createFirestoreTaskService(): TaskService {
       }
     },
 
-    async updateTaskStatus(input: UpdateTaskStatusInput): Promise<Task> {
+    /**
+     * Update task status
+     * @param {object} input
+     * @returns {Promise<object>}
+     */
+    async updateTaskStatus(input) {
       try {
         const docRef = doc(db, 'tasks', input.taskId);
         const existing = await this.getTaskById(input.taskId);
@@ -248,7 +248,7 @@ function createFirestoreTaskService(): TaskService {
           throw new Error('Task already claimed');
         }
 
-        const updates: Record<string, any> = {
+        const updates = {
           status: input.status,
           updatedAt: serverTimestamp(),
         };
@@ -263,7 +263,6 @@ function createFirestoreTaskService(): TaskService {
         }
 
         if (input.status === 'cancelled') {
-          // If publisher cancels, clear the claim
           if (input.currentUserUid && existing.createdByUid === input.currentUserUid) {
             updates.claimedByUid = null;
             updates.claimedAt = null;
@@ -283,5 +282,6 @@ function createFirestoreTaskService(): TaskService {
   };
 }
 
-/** Active service: Firestore implementation */
-export const taskService: TaskService = createFirestoreTaskService();
+/** Active service instance */
+export const taskService = createFirestoreTaskService();
+
