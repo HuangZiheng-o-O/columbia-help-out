@@ -10,7 +10,6 @@ export default function PlazaHeader({
   const sortOptions = [
     { value: 'newest', label: 'Newest' },
     { value: 'nearest', label: 'Nearest' },
-    { value: 'urgency', label: 'Urgency' },
     { value: 'credits_desc', label: 'Credit: High → Low' },
   ];
 

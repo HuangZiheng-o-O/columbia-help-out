@@ -3,6 +3,8 @@ import './styles/index.css';
 import { useUser } from './context/UserContext';
 import { taskService } from './api/taskService';
 import LoginPage from './pages/LoginPage';
+import TaskListPage from './pages/TaskListPage';
+import PostTaskPage from './pages/PostTaskPage';
 import Sidebar from './components/Sidebar';
 import PlazaHeader from './components/PlazaHeader';
 import TaskGrid from './components/TaskGrid';
@@ -61,15 +63,27 @@ export default function App() {
   // Handle navigation
   const handleNavigate = (route) => {
     setActiveRoute(route);
-    // TODO: Implement other routes
-    if (route !== 'discover') {
+    // Alert for unimplemented routes
+    if (route !== 'discover' && route !== 'mytasks' && route !== 'posttask') {
       alert(`"${route}" page is coming soon!`);
     }
   };
 
   // Handle post task
   const handlePostTask = () => {
-    alert('Post Task page is coming soon!');
+    setActiveRoute('posttask');
+  };
+
+  // Handle post task cancel
+  const handlePostTaskCancel = () => {
+    setActiveRoute('discover');
+  };
+
+  // Handle post task success
+  const handlePostTaskSuccess = () => {
+    setActiveRoute('discover');
+    // Reload tasks
+    window.location.reload();
   };
 
   // Handle view details
@@ -93,6 +107,42 @@ export default function App() {
     return <LoginPage />;
   }
 
+  // Render page content based on route
+  const renderPageContent = () => {
+    switch (activeRoute) {
+      case 'mytasks':
+        return <TaskListPage />;
+      case 'posttask':
+        return (
+          <PostTaskPage
+            onCancel={handlePostTaskCancel}
+            onSuccess={handlePostTaskSuccess}
+          />
+        );
+      case 'discover':
+      default:
+        return (
+          <>
+            <PlazaHeader
+              searchText={searchText}
+              onSearchChange={setSearchText}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              onPostTask={handlePostTask}
+              onSearch={handleSearch}
+            />
+            <div className="task-grid-container">
+              <TaskGrid
+                tasks={tasks}
+                isLoading={isLoading}
+                onViewDetails={handleViewDetails}
+              />
+            </div>
+          </>
+        );
+    }
+  };
+
   // Main app
   return (
     <div className="app-layout">
@@ -103,22 +153,7 @@ export default function App() {
       />
       
       <main className="main-content">
-        <PlazaHeader
-          searchText={searchText}
-          onSearchChange={setSearchText}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          onPostTask={handlePostTask}
-          onSearch={handleSearch}
-        />
-        
-        <div className="task-grid-container">
-          <TaskGrid
-            tasks={tasks}
-            isLoading={isLoading}
-            onViewDetails={handleViewDetails}
-          />
-        </div>
+        {renderPageContent()}
       </main>
     </div>
   );

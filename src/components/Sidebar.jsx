@@ -22,6 +22,9 @@ export default function Sidebar({ activeRoute, onNavigate, onPostTask }) {
         </div>
       </div>
 
+      {/* Divider */}
+      <div className="sidebar-divider"></div>
+
       {/* Navigation */}
       <div className="sidebar-nav">
         <button

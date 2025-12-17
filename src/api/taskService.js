@@ -36,7 +36,6 @@ function firestoreDocToTask(id, data) {
     status: data.status ?? 'open',
     isVerified: data.isVerified ?? false,
     isOnline: data.isOnline ?? false,
-    urgency: data.urgency ?? undefined,
     tags: data.tags ?? [],
     claimedByUid: data.claimedByUid ?? null,
     claimedAt: data.claimedAt?.toDate?.().toISOString() ?? null,
@@ -105,14 +104,13 @@ function createFirestoreTaskService() {
 
       const constraints = [];
 
-      // Scope filters
+      // Note: For 'published' scope, we use client-side filtering to avoid index requirement
+      let filterByOwnerUid = null;
       if (scope === 'published') {
         if (!ownerUid) return { tasks: [], nextCursor: undefined };
-        constraints.push(where('createdByUid', '==', ownerUid));
-      } else {
-        if (ownerUid) {
-          constraints.push(where('createdByUid', '==', ownerUid));
-        }
+        filterByOwnerUid = ownerUid;
+      } else if (ownerUid) {
+        filterByOwnerUid = ownerUid;
       }
 
       // Status filter
@@ -144,6 +142,11 @@ function createFirestoreTaskService() {
         let tasks = snap.docs.slice(0, pageSize).map((doc) =>
           firestoreDocToTask(doc.id, doc.data())
         );
+
+        // Client-side owner filter (to avoid composite index requirement)
+        if (filterByOwnerUid) {
+          tasks = tasks.filter((t) => t.createdByUid === filterByOwnerUid);
+        }
 
         // Client-side search filter
         if (searchText) {
@@ -205,7 +208,6 @@ function createFirestoreTaskService() {
           location: input.location,
           durationMinutes: input.durationMinutes,
           isOnline: input.isOnline ?? false,
-          urgency: input.urgency ?? 'normal',
           tags: input.tags ?? [],
           createdByUid: input.createdByUid,
           publisherEmail: input.publisherEmail,

@@ -231,17 +231,18 @@ input {
   line-height: 1.05;
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  color: #e6a439;
 }
 
 .sidebar-logo-text .gold {
-  color: var(--gold);
+  color: #e6a439;
 }
 
 /* Thin divider under logo */
 .sidebar-divider {
-  margin: 0.55rem 0.65rem 0.45rem;
+  margin: 0.6rem 0.75rem 0.6rem;
   height: 1px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .sidebar-nav {
@@ -309,7 +310,7 @@ input {
 
 .sidebar-footer {
   padding: 0.9rem 0.9rem 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .user-info {
@@ -774,4 +775,439 @@ input {
   .task-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============================================
+   Task List Page - Figma Design
+   ============================================ */
+.task-list-page {
+  padding: 1.5rem;
+}
+
+.task-list-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.task-list-header {
+  margin-bottom: 1.5rem;
+}
+
+.task-list-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #1f3f72;
+  margin: 0 0 0.5rem 0;
+}
+
+.task-list-subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Controls Row */
+.task-list-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+/* Tab Switcher */
+.task-list-tabs {
+  display: flex;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tab-btn {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #6b7280;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:first-child {
+  border-right: 1px solid #d1d5db;
+}
+
+.tab-btn.active {
+  background: #1f3f72;
+  color: #ffffff;
+}
+
+.tab-btn:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+/* Stats */
+.task-list-stats {
+  display: flex;
+  background: #dbeafe;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.6rem 1.5rem;
+}
+
+.stat-item:first-child {
+  border-right: 1px solid #bfdbfe;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1f3f72;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f3f72;
+}
+
+/* Task List Items */
+.task-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.task-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+}
+
+.task-list-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.task-list-item-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+/* Status Badges */
+.task-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.status-unsettled {
+  background: #4b5563;
+  color: #ffffff;
+}
+
+.status-withdrawn {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.status-completed {
+  background: #f59e0b;
+  color: #ffffff;
+}
+
+/* Action Buttons */
+.task-list-item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-task-details {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-task-details:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.btn-mark-completed {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #f5c842;
+  color: #1a1a1a;
+  border: 1.5px solid #d4a72e;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-mark-completed:hover:not(:disabled) {
+  background: #e5b832;
+}
+
+.btn-mark-completed:disabled {
+  background: #f5dda0;
+  border-color: #e8d4a0;
+  color: #9a8a6a;
+  cursor: not-allowed;
+}
+
+.btn-withdraw {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #ef4444;
+  color: #ffffff;
+  border: 1.5px solid #dc2626;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-withdraw:hover {
+  background: #dc2626;
+}
+
+/* Empty/Loading States */
+.task-list-items .loading-state,
+.task-list-items .empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/*
+   Post Task Page
+*/
+.post-task-page {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.post-task-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  max-width: 800px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.post-task-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #1f3f72;
+  margin: 0 0 1rem 0;
+}
+
+.post-task-divider {
+  height: 1px;
+  background: #d1d5db;
+  margin-bottom: 1.5rem;
+}
+
+/* Form Layout */
+.post-task-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1f3f72;
+}
+
+.form-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  background: #ffffff;
+  transition: border-color 0.15s ease;
+  max-width: 400px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #1f3f72;
+}
+
+.form-textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  background: #ffffff;
+  resize: vertical;
+  min-height: 150px;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #1f3f72;
+}
+
+/* Tag Selector */
+.tag-group {
+  max-width: 400px;
+}
+
+.tag-selector {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1.5px solid rgba(31, 63, 114, 0.3);
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.tag-option {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tag-option:hover {
+  opacity: 0.85;
+}
+
+.tag-option.selected {
+  box-shadow: 0 0 0 2px rgba(31, 63, 114, 0.3);
+}
+
+.tag-check {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Inline Row for Duration & Credits */
+.inline-row {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-end;
+}
+
+.inline-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.inline-group .form-label {
+  white-space: nowrap;
+  margin: 0;
+}
+
+.small-input {
+  width: 100px;
+  max-width: 100px;
+  text-align: center;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.btn-cancel {
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.btn-launch {
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #f5c842;
+  color: #1a1a1a;
+  border: 2px solid #d4a72e;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-launch:hover {
+  background: #e5b832;
+}
+
+.btn-launch:disabled,
+.btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

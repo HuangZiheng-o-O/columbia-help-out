@@ -2,10 +2,12 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { UserProvider } from './context/UserContext';
-import { autoSeedIfEmpty } from './firebase/seedData';
+import { clearTasks } from './firebase/seedData';
 
-// Auto-seed initial data if database is empty
-autoSeedIfEmpty().catch(console.error);
+// Expose clearTasks to browser console for manual data cleanup
+if (typeof window !== 'undefined') {
+  window.clearTasks = clearTasks;
+}
 
 const container = document.getElementById('root');
 
