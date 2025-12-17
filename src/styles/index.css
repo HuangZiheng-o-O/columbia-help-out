@@ -4,7 +4,7 @@
 
 /* CSS Variables */
 :root {
-  /* Primary palette (match first Figma) */
+  /* Primary palette */
   --navy: #14345b;
   --navy-light: #1f4a80;
   --gold: #e6a439;
@@ -51,10 +51,10 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
   background: var(--bg-gray);
   color: var(--text-dark);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 button {
@@ -197,7 +197,7 @@ input {
 }
 
 /* ============================================
-   Sidebar - Exact Figma Match
+   Sidebar
    ============================================ */
 .sidebar {
   width: var(--sidebar-width);
@@ -225,7 +225,7 @@ input {
 }
 
 .sidebar-logo-text {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: inherit;
   font-size: 1.05rem;
   font-weight: 800;
   line-height: 1.05;
@@ -369,9 +369,7 @@ input {
   padding: 18px 20px 24px;
 }
 
-/* ============================================
-   Plaza Header - Exact Figma Match
-   ============================================ */
+/* Plaza Header*/
 .plaza-header {
   background: var(--bg-white);
   padding: 1rem 1.25rem 1.15rem;
@@ -404,9 +402,10 @@ input {
 }
 
 .plaza-title {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 1.5rem;
+  font-family: inherit;
+  font-size: 2rem;
   font-weight: 700;
+  font-style: italic;
   color: #1f3f72;
   margin: 0;
   white-space: nowrap;
@@ -456,7 +455,7 @@ input {
   text-align: center;
 }
 
-/* Search button - golden yellow */
+/* Search button golden yellow */
 .btn-search {
   background: #f5b73b;
   border: 1px solid #e0a52f;
@@ -467,7 +466,7 @@ input {
   background: #e5a82e;
 }
 
-/* Post Task button - orange */
+/* Post Task button orange */
 .btn-post {
   background: #e08b4a;
   border: 1px solid #c97a3d;
@@ -478,7 +477,7 @@ input {
   background: #d07d3e;
 }
 
-/* Sort Bar - Exact Figma Match */
+/* Sort Bar*/
 .sort-bar {
   display: flex;
   align-items: center;
@@ -516,9 +515,7 @@ input {
   box-shadow: 0 1px 3px rgba(0,0,0,0.16);
 }
 
-/* ============================================
-   Task Grid - Exact Figma Match
-   ============================================ */
+/*  Task Grid*/
 .task-grid-container {
   padding: 0.5rem 1.25rem 1.5rem;
   max-width: calc(100% - 8px);
@@ -533,9 +530,7 @@ input {
   row-gap: 1.25rem;
 }
 
-/* ============================================
-   Task Card - Figma Design
-   ============================================ */
+/* Task Card*/
 .task-card {
   background: #ffffff;
   border-radius: 14px;
@@ -777,9 +772,7 @@ input {
   }
 }
 
-/* ============================================
-   Task List Page - Figma Design
-   ============================================ */
+/* Task List Page*/
 .task-list-page {
   padding: 1.5rem;
 }
@@ -796,7 +789,7 @@ input {
 }
 
 .task-list-title {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: inherit;
   font-size: 2rem;
   font-weight: 700;
   font-style: italic;
@@ -1027,8 +1020,8 @@ input {
 }
 
 .post-task-title {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 1.75rem;
+  font-family: inherit;
+  font-size: 2rem;
   font-weight: 700;
   font-style: italic;
   color: #1f3f72;
@@ -1212,9 +1205,7 @@ input {
   cursor: not-allowed;
 }
 
-/* ============================================
-   Profile Page (My Wallet) - Figma Design
-   ============================================ */
+/* Profile Page */
 .profile-page {
   padding: 1.5rem;
 }
@@ -1239,8 +1230,8 @@ input {
 }
 
 .profile-title {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 2.25rem;
+  font-family: inherit;
+  font-size: 2rem;
   font-weight: 700;
   font-style: italic;
   color: #1f3f72;
@@ -1337,7 +1328,7 @@ input {
 }
 
 .transaction-title {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: inherit;
   font-size: 1.5rem;
   font-weight: 700;
   font-style: italic;
