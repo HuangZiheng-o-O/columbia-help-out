@@ -50,6 +50,8 @@ export default function TaskCard({ task, onViewDetails }) {
         taskId: id,
         status: 'claimed',
         claimedByUid: currentUser.uid,
+        claimerEmail: currentUser.email,
+        claimerName: currentUser.displayName || 'User',
       });
       alert('Task claimed successfully! Check "My Tasks" to view it.');
       window.location.reload();

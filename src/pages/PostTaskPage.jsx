@@ -61,6 +61,7 @@ export default function PostTaskPage({ onCancel, onSuccess }) {
         durationMinutes: Number(formData.durationMinutes),
         createdByUid: currentUser.uid,
         publisherEmail: currentUser.email,
+        publisherName: currentUser.displayName || 'User',
       });
 
       alert('Task posted successfully!');

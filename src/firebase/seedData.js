@@ -1,7 +1,7 @@
 import { collection, addDoc, Timestamp, getDocs, deleteDoc } from 'firebase/firestore';
 import { db } from './config';
 
-// Sample task data matching Figma design EXACTLY
+// Sample task data
 const sampleTasks = [
   {
     title: 'Borrow Charger 45W',
@@ -117,6 +117,50 @@ export async function clearTasks() {
 }
 
 /**
+ * Clear all users from Firestore
+ */
+export async function clearUsers() {
+  console.log('Clearing all users...');
+  const usersCollection = collection(db, 'users');
+  const snap = await getDocs(usersCollection);
+  
+  for (const doc of snap.docs) {
+    await deleteDoc(doc.ref);
+    console.log(`Deleted user: ${doc.id}`);
+  }
+  
+  console.log('All users cleared!');
+}
+
+/**
+ * Clear all transactions from Firestore
+ */
+export async function clearTransactions() {
+  console.log('Clearing all transactions...');
+  const txCollection = collection(db, 'transactions');
+  const snap = await getDocs(txCollection);
+  
+  for (const doc of snap.docs) {
+    await deleteDoc(doc.ref);
+    console.log(`Deleted transaction: ${doc.id}`);
+  }
+  
+  console.log('All transactions cleared!');
+}
+
+/**
+ * Clear entire database (all collections)
+ */
+export async function clearAll() {
+  console.log('🗑️ Clearing entire database...');
+  await clearTasks();
+  await clearUsers();
+  await clearTransactions();
+  localStorage.removeItem('firebase-seeded-v3');
+  console.log('✅ Database completely cleared!');
+}
+
+/**
  * Auto-seed tasks if database is empty
  */
 export async function autoSeedIfEmpty() {
@@ -146,5 +190,8 @@ export async function autoSeedIfEmpty() {
 if (typeof window !== 'undefined') {
   window.seedTasks = seedTasks;
   window.clearTasks = clearTasks;
+  window.clearUsers = clearUsers;
+  window.clearTransactions = clearTransactions;
+  window.clearAll = clearAll;
   window.autoSeedIfEmpty = autoSeedIfEmpty;
 }

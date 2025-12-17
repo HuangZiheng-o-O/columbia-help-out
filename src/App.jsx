@@ -5,6 +5,7 @@ import { taskService } from './api/taskService';
 import LoginPage from './pages/LoginPage';
 import TaskListPage from './pages/TaskListPage';
 import PostTaskPage from './pages/PostTaskPage';
+import ProfilePage from './pages/ProfilePage';
 import Sidebar from './components/Sidebar';
 import PlazaHeader from './components/PlazaHeader';
 import TaskGrid from './components/TaskGrid';
@@ -18,7 +19,7 @@ export default function App() {
   const [searchText, setSearchText] = useState('');
   const [sortBy, setSortBy] = useState('nearest');
 
-  // Load tasks
+  // Load tasks (only open/unsettled tasks for Plaza)
   useEffect(() => {
     if (!isLoggedIn) return;
 
@@ -28,6 +29,7 @@ export default function App() {
         const result = await taskService.listTasks({
           searchText,
           sortBy: sortBy === 'nearest' ? 'newest' : sortBy,
+          status: 'open',  // Only show open tasks in Plaza
           limit: 50,
         });
         setTasks(result.tasks);
@@ -41,7 +43,7 @@ export default function App() {
     loadTasks();
   }, [isLoggedIn, sortBy]);
 
-  // Handle search
+  // Handle search (only open/unsettled tasks)
   const handleSearch = async () => {
     if (!isLoggedIn) return;
 
@@ -50,6 +52,7 @@ export default function App() {
       const result = await taskService.listTasks({
         searchText,
         sortBy: sortBy === 'nearest' ? 'newest' : sortBy,
+        status: 'open',  // Only show open tasks in Plaza
         limit: 50,
       });
       setTasks(result.tasks);
@@ -63,10 +66,6 @@ export default function App() {
   // Handle navigation
   const handleNavigate = (route) => {
     setActiveRoute(route);
-    // Alert for unimplemented routes
-    if (route !== 'discover' && route !== 'mytasks' && route !== 'posttask') {
-      alert(`"${route}" page is coming soon!`);
-    }
   };
 
   // Handle post task
@@ -112,6 +111,8 @@ export default function App() {
     switch (activeRoute) {
       case 'mytasks':
         return <TaskListPage />;
+      case 'profile':
+        return <ProfilePage />;
       case 'posttask':
         return (
           <PostTaskPage

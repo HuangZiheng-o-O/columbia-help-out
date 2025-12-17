@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { signInWithGoogle, logOut, onAuthChange } from '../firebase/authService';
+import { userService } from '../api/userService';
 
 // Generate avatar color from string
 function stringToColor(str) {
@@ -72,7 +73,16 @@ export function UserProvider({ children }) {
       localStorage.removeItem('mockUser');
       
       const firebaseUser = await signInWithGoogle();
-      setCurrentUser(firebaseUserToAppUser(firebaseUser));
+      const appUser = firebaseUserToAppUser(firebaseUser);
+      
+      // Ensure user record exists in Firestore with initial balance
+      await userService.getOrCreateUser(
+        appUser.uid,
+        appUser.email,
+        appUser.displayName
+      );
+      
+      setCurrentUser(appUser);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message || 'Failed to sign in with Google.' };

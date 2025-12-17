@@ -64,7 +64,8 @@ export default function TaskListPage() {
     try {
       await taskService.updateTaskStatus({
         taskId,
-        status: 'withdrawn',
+        status: 'cancelled',  // Use 'cancelled' for credit refund
+        currentUserUid: currentUser.uid,
       });
       // Refresh tasks
       window.location.reload();
@@ -80,7 +81,7 @@ export default function TaskListPage() {
       case 'open':
       case 'claimed':
         return 'status-unsettled';
-      case 'withdrawn':
+      case 'cancelled':
         return 'status-withdrawn';
       case 'completed':
         return 'status-completed';
@@ -95,8 +96,8 @@ export default function TaskListPage() {
       case 'open':
       case 'claimed':
         return 'Unsettled';
-      case 'withdrawn':
-        return 'Withdrawed';
+      case 'cancelled':
+        return 'Withdrawn';
       case 'completed':
         return 'Completed';
       default:
@@ -170,8 +171,8 @@ export default function TaskListPage() {
               <div className="task-list-item-actions">
                 <button className="btn-task-details">Details</button>
                 
-                {/* My Published: Show Mark Completed, disabled if not claimed */}
-                {activeTab === 'published' && (task.status === 'open' || task.status === 'claimed') && (
+                {/* My Published: Show Mark Completed, disabled if not claimed, hide if cancelled/completed */}
+                {activeTab === 'published' && task.status !== 'cancelled' && task.status !== 'completed' && (
                   <button
                     className="btn-mark-completed"
                     onClick={() => handleMarkCompleted(task.id)}
@@ -181,8 +182,8 @@ export default function TaskListPage() {
                   </button>
                 )}
                 
-                {/* Show Withdraw for unsettled tasks (open/claimed) */}
-                {(task.status === 'open' || task.status === 'claimed') && (
+                {/* Show Withdraw for unsettled tasks (open/claimed), not for cancelled/completed */}
+                {task.status !== 'cancelled' && task.status !== 'completed' && (
                   <button
                     className="btn-withdraw"
                     onClick={() => handleWithdraw(task.id)}

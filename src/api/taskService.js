@@ -14,6 +14,8 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { userService } from './userService';
+import { transactionService } from './transactionService';
 
 /**
  * Convert Firestore document to Task object
@@ -106,6 +108,8 @@ function createFirestoreTaskService() {
 
       // Note: For 'published' scope, we use client-side filtering to avoid index requirement
       let filterByOwnerUid = null;
+      let filterByStatus = null;
+
       if (scope === 'published') {
         if (!ownerUid) return { tasks: [], nextCursor: undefined };
         filterByOwnerUid = ownerUid;
@@ -113,9 +117,9 @@ function createFirestoreTaskService() {
         filterByOwnerUid = ownerUid;
       }
 
-      // Status filter
+      // Use client-side status filtering to avoid composite index requirement
       if (status) {
-        constraints.push(where('status', '==', status));
+        filterByStatus = status;
       }
 
       // Sorting
@@ -142,6 +146,11 @@ function createFirestoreTaskService() {
         let tasks = snap.docs.slice(0, pageSize).map((doc) =>
           firestoreDocToTask(doc.id, doc.data())
         );
+
+        // Client-side status filter (to avoid composite index requirement)
+        if (filterByStatus) {
+          tasks = tasks.filter((t) => t.status === filterByStatus);
+        }
 
         // Client-side owner filter (to avoid composite index requirement)
         if (filterByOwnerUid) {
@@ -194,12 +203,22 @@ function createFirestoreTaskService() {
     },
 
     /**
-     * Create a new task
+     * Create a new task (with credit locking)
      * @param {object} input
      * @returns {Promise<object>}
      */
     async createTask(input) {
       try {
+        // Ensure user exists and has enough credits
+        await userService.getOrCreateUser(
+          input.createdByUid,
+          input.publisherEmail,
+          input.publisherName || 'User'
+        );
+
+        // Lock credits for this task
+        await userService.lockCredits(input.createdByUid, input.credits);
+
         const docData = {
           title: input.title,
           shortDescription: input.shortDescription,
@@ -224,6 +243,15 @@ function createFirestoreTaskService() {
         
         const created = await this.getTaskById(docRef.id);
         if (!created) throw new Error('Failed to fetch created task');
+
+        // Record transaction
+        await transactionService.recordTaskPublished(
+          input.createdByUid,
+          docRef.id,
+          input.title,
+          input.credits
+        );
+
         return created;
       } catch (error) {
         console.error('Error creating task:', error);
@@ -232,7 +260,7 @@ function createFirestoreTaskService() {
     },
 
     /**
-     * Update task status
+     * Update task status (with credit management)
      * @param {object} input
      * @returns {Promise<object>}
      */
@@ -258,13 +286,56 @@ function createFirestoreTaskService() {
         if (input.status === 'claimed') {
           updates.claimedByUid = input.claimedByUid;
           updates.claimedAt = serverTimestamp();
+
+          // Ensure claimer has a user record
+          if (input.claimedByUid && input.claimerEmail) {
+            await userService.getOrCreateUser(
+              input.claimedByUid,
+              input.claimerEmail,
+              input.claimerName || 'User'
+            );
+          }
         }
 
         if (input.status === 'completed') {
           updates.completedAt = serverTimestamp();
+
+          // Transfer credits from publisher to claimer
+          if (existing.claimedByUid && existing.createdByUid) {
+            await userService.transferCredits(
+              existing.createdByUid,
+              existing.claimedByUid,
+              existing.credits
+            );
+
+            // Record transactions for both parties
+            await transactionService.recordTaskCompletedPublisher(
+              existing.createdByUid,
+              input.taskId,
+              existing.title,
+              existing.credits
+            );
+            await transactionService.recordTaskCompletedClaimer(
+              existing.claimedByUid,
+              input.taskId,
+              existing.title,
+              existing.credits
+            );
+          }
         }
 
         if (input.status === 'cancelled') {
+          // Unlock credits back to publisher
+          await userService.unlockCredits(existing.createdByUid, existing.credits);
+
+          // Record unlock transaction
+          await transactionService.recordTaskCancelled(
+            existing.createdByUid,
+            input.taskId,
+            existing.title,
+            existing.credits
+          );
+
           if (input.currentUserUid && existing.createdByUid === input.currentUserUid) {
             updates.claimedByUid = null;
             updates.claimedAt = null;
